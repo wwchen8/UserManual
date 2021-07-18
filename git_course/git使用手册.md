@@ -123,7 +123,7 @@ sudo apt-get install git
 
 第二种方法更简单，也是推荐的方法，就是直接从AppStore安装Xcode，Xcode集成了Git，不过默认没有安装，你需要运行Xcode，选择菜单“Xcode”->“Preferences”，在弹出窗口中找到“Downloads”，选择“Command Line Tools”，点“Install”就可以完成安装了。
 
-install-git-by-xcode
+![](https://github.com/wwchen8/UserManual/blob/main/git_course/pic/install-git-by-xcode.jpg)
 
 Xcode是Apple官方IDE，功能非常强大，是开发Mac和iOS App的必选装备，而且是免费的！
 
@@ -132,7 +132,7 @@ Xcode是Apple官方IDE，功能非常强大，是开发Mac和iOS App的必选装
 
 安装完成后，在开始菜单里找到“Git”->“Git Bash”，蹦出一个类似命令行窗口的东西，就说明Git安装成功！
 
-install-git-on-windows
+![](https://github.com/wwchen8/UserManual/blob/main/git_course/pic/install-git-on-windows.jpg)
 
 安装完成后，还需要最后一步设置，在命令行输入：
 ```
