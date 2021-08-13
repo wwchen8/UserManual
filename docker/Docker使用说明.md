@@ -2,8 +2,9 @@
 
 ## 目录
 * [Linux中快速安装Docker](#Linux中快速安装Docker)
-* [解决冲突](#解决冲突)
-* [分支管理策略](#分支管理策略)
+* [Docker常用命令](#Docker常用命令)
+  * [分支管理策略](#分支管理策略)  
+  * [分支管理策略](#分支管理策略)
 * [Bug分支](#Bug分支)
 * [Feature分支](#Feature分支)
 * [多人协作](#多人协作)
@@ -14,18 +15,19 @@
 进入 [Dokcer官网](https://docker.com)
 
 进入官网后，选择Products(产品)，然后选择Docker Desktop，进入下载页面，点击进行下载。
-'''
+```
 $curl -fsSL https://get.docker.com -o get-docker.sh
 $sudo sh get-docker.sh
-'''
+```
 启动Docker服务进程
-'''
+```
 sudo systemctl start docker
 sudo docker version
-'''
+```
 
-命令：
-镜像相关命令
+## Docker常用命令
+
+### 镜像相关命令
 1 查看
 docker images
 docker image ls
@@ -46,7 +48,7 @@ docker rmi ID
 
 docker image inspect ID
 
-容器相关命令
+### 容器相关命令
 1.查看容器
 docker container ps 	正在运行的容器
 docker container ps -a 	所有容器
