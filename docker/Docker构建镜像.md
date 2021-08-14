@@ -211,7 +211,7 @@ ARG arg_name=value
 
 >RUN 是在 docker build。
 
- 作用：为启动的容器指定默认要运行的程序，程序运行结束，容器也就结束。CMD 指令指定的程序可被 docker run 命令行参数中指定要运行的程序所覆盖。
+ 作用：为启动的容器指定默认要运行的程序，程序运行结束，容器也就结束。**CMD 指令指定的程序可被 docker run 命令行参数中指定要运行的程序所覆盖。**
 
 >注意：如果 Dockerfile 中如果存在多个 CMD 指令，仅最后一个生效。
 
@@ -219,15 +219,17 @@ ARG arg_name=value
 ```
 CMD <shell 命令> 
 CMD ["<可执行文件或命令>","<param1>","<param2>",...] 
-CMD ["<param1>","<param2>",...]  # 该写法是为 ENTRYPOINT 指令指定的程序提供默认参数
+CMD ["<param1>","<param2>",...]  // 该写法是为 ENTRYPOINT 指令指定的程序提供默认参数
 ```
 推荐使用第二种格式，执行过程比较明确。第一种格式实际上在运行的过程中也会自动转换成第二种格式运行，并且默认可执行文件是 sh。
 
+<br/>
+ 
 10. ENTRYPOINT
  
-类似于 CMD 指令，但其不会被 docker run 的命令行参数指定的指令所覆盖，而且这些命令行参数会被当作参数送给 ENTRYPOINT 指令指定的程序。
+类似于 CMD 指令，**但其不会被 docker run 的命令行参数指定的指令所覆盖**，而且这些命令行参数会被当作参数送给 ENTRYPOINT 指令指定的程序。
 
-但是, 如果运行 docker run 时使用了 --entrypoint 选项，将覆盖 CMD 指令指定的程序。
+如果运行 docker run 时使用了 --entrypoint 选项，将覆盖 CMD 指令指定的程序。
 
 优点：在执行 docker run 的时候可以指定 ENTRYPOINT 运行所需的参数。
 
@@ -236,31 +238,40 @@ CMD ["<param1>","<param2>",...]  # 该写法是为 ENTRYPOINT 指令指定的程
 格式：
 
 ENTRYPOINT ["<executeable>","<param1>","<param2>",...]
-可以搭配 CMD 命令使用：一般是变参才会使用 CMD ，这里的 CMD 等于是在给 ENTRYPOINT 传参，以下示例会提到。
+
+**可以搭配 CMD 命令使用：一般是变参才会使用 CMD ，这里的 CMD 等于是在给 ENTRYPOINT 传参**，以下示例会提到。
 
 示例：
 
 假设已通过 Dockerfile 构建了 nginx:test 镜像：
-
+```
 FROM nginx
 
-ENTRYPOINT ["nginx", "-c"] # 定参
-CMD ["/etc/nginx/nginx.conf"] # 变参 
-1、不传参运行
-
+ENTRYPOINT ["nginx", "-c"]  // 定参
+CMD ["/etc/nginx/nginx.conf"] // 变参 
+```
+ 
+* 不传参运行
+```
 $ docker run  nginx:test
+```
 容器内会默认运行以下命令，启动主进程。
-
+```
 nginx -c /etc/nginx/nginx.conf
-2、传参运行
+```
 
+* 传参运行
+```
 $ docker run  nginx:test -c /etc/nginx/new.conf
+```
 容器内会默认运行以下命令，启动主进程(/etc/nginx/new.conf:假设容器内已有此文件)
-
+```
 nginx -c /etc/nginx/new.conf
+```
 
-
-10. WORKDIR
+<br/>
+ 
+11. WORKDIR
  
 指定工作目录。用 WORKDIR 指定的工作目录，会在构建镜像的每一层中都存在。（WORKDIR 指定的工作目录，必须是提前创建好的）。
 
@@ -270,7 +281,8 @@ docker build 构建镜像过程中的，每一个 RUN 命令都是新建的一�
 
 WORKDIR <工作目录路径>
 
-11. VOLUME
+ 
+12. VOLUME
  
 定义匿名数据卷。在启动容器时忘记挂载数据卷，会自动挂载到匿名卷。
 
