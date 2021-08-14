@@ -68,6 +68,7 @@ $sudo sh get-docker.sh
 
   ```
   #docker image inspect ID
+  #docker image history ID  // 查看镜像分层信息
   ```
 
 6. 镜像的导入导出
