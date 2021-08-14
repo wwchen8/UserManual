@@ -1,8 +1,8 @@
-# Dokcer目录操作
+# 构建镜像
 
 ## 目录
-* [复制文件](#复制文件)
-* [目录挂载](#目录挂载)
+* [基于现有容器创建镜像](#基于现有容器创建镜像)
+* [基于Dockerfile文件创建镜像](#基于Dockerfile文件创建镜像)
   * [匿名挂载](#匿名挂载)  
   * [具名挂载](#具名挂载)
   * [多目录挂载](#多目录挂载)
@@ -11,124 +11,98 @@
   * [查看目录挂载关系](#查看目录挂载关系)
 
 ---
-        
-## 复制文件
+获取镜像的三个基本途径
+a. 从网络社区直接拉取，（pull from registry）
+b. 从Dockerfile构建一个镜像，这种像是DIY一个镜像，但是整个构建过程是需要联网，因为需要西在基础镜像，然后根据基础镜像进行构建（build from Dockerfile）。
+c. 自有文件的导入，可以从本地导入已经构建好的镜像文件，在没有网络的时候可以用。这个文件是通过 已有的镜像导出来的压缩包，然后就可以进行使用了。        
 
-3. 复制
-docker  cp 本地文件  容器名: 目录名
-docker cp 容器名:目录文件名 本地目录
+## 基于现有容器创建镜像
 
-4. 目录挂载
+从容器创建一个新的镜像。
 
-创建容器时 添加参数 : -v /宿主机目录:/容器目录
-docker run -di -v /mydata/docker_centos/data:/usr/local/data --name centos7-01 centos:07
-若提示权限不足，是因为centos7中的安全模块SELinux把权限禁止了。 可以通过参数 -privileged=true 解决
+命令: `docker commit`
 
-多目录挂载：
-docker run -di -v /宿主机目录:/容器目录 -v /宿主机目录2:/容器目录2  Image
+1. 创建容器
+```
+// 拉取镜像
+#docker image pull centos:7
+// 创建容器
+#docker run -di --name mycentos7 centos:7
+```
+
+2. 复制资源
+```
+#docker cp /root/jdk-11.xxx._bin.tar.gz mycentos7 :/root
+```
+
+3. 安装资源
+```
+// 登录进容器
+#docker exec -it mycentos7  /bin/bash
+#cd /root
+// 安装资源，配置环境
+# ...
+```
+
+4. 构建镜像
+
+命令:  `docker commit -a=作者 -m=说明文字  容器名   新镜像名:标签`
+
+```
+#docker commit -a="writer" -m="jdk11 and tomcat9" mymcentos7 customcentos:7
+// 查看镜像列表
+#docker images 
+```
+
+5. 使用新镜像创建容器
+```
+#docker run -di --name newcentos7 -p 8080:8080 customcentos:7
+// 登录进容器
+docker exec -it newcentos7  /bin/bash
+```
+
+---
+## 基于Dockerfile文件创建镜像
  
+### Dockerfile文件常用指令
 
+1. FROM 
 
-a. 匿名挂载
-/var/lib/docker/volumes
-
-docker run -di -v /容器目录名 --name myubuntu ubuntu
-
- 
-b.具名挂载
-/var/lib/docker/volumes
-docker run -di -v 名称:/容器目录名 --name myubuntu02 ubuntu
-
-5. 只读只写
-只读： 只能通过宿主机内容实现对容器德数据管理  
--v /宿主机目录:/容器目录:ro 
-
-读写：默认 
--v /宿主机目录:/容器目录:rw
-
-6.继承
---volume-from 容器名:[ro]
-
-docker run -di -v /mydata/docker_ubuntu/data:/usr/local/data --name ubuntu-01 ubuntu
-docker run -di --volume-from ubuntu-01 --name ubuntu-04 ubuntu
-docker run -di --volume-from ubuntu-01 --name ubuntu-05 ubuntu
-
-7. 查看目录挂载关系
-docker volum ls
-docker inspect 容器名|容器ID
-
-8.查看容器的IP地址
-docker inspect 容器名|容器ID
-docker inspect --format='{{.NetworkSettings.IPAddress}}' 容器名|容器ID
-
-
-三. 构建镜像
-镜像的导入导出
-导出：
-docker image save 镜像名:标签 -o 镜像文件名
-docker image save centos:7 -o mycentos.imge
-
-导入:
-docker image load -i  镜像文件名
-docker image load -i  mycentos.imge
-
-
-1.docker commit: 从容器创建一个新的镜像
-
-a. 创建容器
-
-# 拉取镜像
-docker image pull centos:7
-# 创建容器
-docker run -di --name mycentos7 centos:7
-
-b. 复制资源
-docker cp /root/jdk-11.xxx._bin.tar.gz mycentos7 :/root
-
-c. 安装资源
-# 登录进容器
-docker exec -it mycents7  /bin/bash
-
-cd /root
-安装资源
-
-d. 构建镜像
-docker commit -a=作者 -m=说明文字  容器名   新镜像名:标签
-docker commit -a="writer" -m="jdk11 and tomcat9" mycentos7 newcentos:7
-
-docker images 
-
-e. 使用新镜像创建容器
-docker run -di --name mynewcentos7 -p 8080:8080 newcentos:7
-# 登录进容器
-docker exec -it mycents7  /bin/bash
-
-
-2.docker build: 配合Dockerfile文件创建镜像
-
-Dockerfile文件
-常用指令
-FROM 
 定制的镜像都是基于 FROM 的镜像
+```
 FROM centos:7
 FROM scratch   //空镜像 从零开始构建镜像
+```
 
-LABEL 
+>选择基础镜像的三个原则  
+>* 官方镜像优于非官方的镜像  
+>* 固定版本的Tag，而不是每次都使用latest  
+>* 功能满足，选择体积小的镜像  
+
+<br/>
+2. LABEL 
+
 指令用来给镜像添加一些元数据（metadata），以键值对的形式，
+```
 LABEL <key>=<value> <key>=<value> <key>=<value> ...
 LABEL maintainer="Jerry Chen"
+```
 
-RUN
+<br/>
+3. RUN
+
 用于执行后面跟着的命令行命令。有以下俩种格式：
 
-shell 格式：
+* shell 格式：
+
 RUN <命令行命令> # <命令行命令> 等同于，在终端操作的 shell 命令。
 
-exec 格式：
-RUN ["可执行文件", "参数1", "参数2"]
-# 例如：
-# RUN ["./test.php", "dev", "offline"] 等价于 RUN ./test.php dev offline
+* exec 格式：
 
+RUN ["可执行文件", "参数1", "参数2"]
+```
+ RUN ["./test.php", "dev", "offline"]  //等价于 RUN ./test.php dev offline
+```
 
 注意：Dockerfile 的指令每执行一次都会在 docker 上新建一层。所以过多无意义的层，会造成镜像膨胀过大。例如：
 
@@ -262,7 +236,35 @@ VOLUME <路径>
 在启动容器 docker run 的时候，我们可以通过 -v 参数修改挂载点。
 
 
-获取镜像的三个基本途径
-a. 从网络社区直接拉取，（pull from registry）
-b. 从Dockerfile构建一个镜像，这种像是DIY一个镜像，但是整个构建过程是需要联网，因为需要西在基础镜像，然后根据基础镜像进行构建（build from Dockerfile）。
-c. 自有文件的导入，可以从本地导入已经构建好的镜像文件，在没有网络的时候可以用。这个文件是通过 已有的镜像导出来的压缩包，然后就可以进行使用了。
+ 
+
+#mkdir -p /usr/local/dockerfile
+#cd /usr/local/dockerfile
+    #vi Dockerfile
+
+FROM centos:7
+LABEL maintainer="Jerry Li"
+WORKDIR /usr/local
+RUN mkdir -p /usr/local/java && mkdir -p /usr/local/tomcat
+ADD jdk-11.0.6_linux-x64_bin.tar.gz /usr/local/java
+ADD apache-tomcat-9.0.37.tar.gz /usr/local/tomcat
+EXPOSE 8080
+ENV JAVA_HOME /usr/local/java/jdk-11.0.6/
+ENV PATH $PATH:$JAVA_HOME/bin
+CMD ["/usr/local/tomcat/apache-tomcat-9.0.37/bin/catalina.sh","run"]
+
+#cp /root/jdk-11.0.6_linux-x64_bin.tar.gz /usr/local/dockerfile/
+#cp /root/apache-tomcat-9.0.37.tar.gz /usr/local/dockerfile/
+#docker build -f /usr/local/dockerfile/Dockerfile -t mycentos:7 /usr/local/dockerfile/
+
+#docker images
+
+#docker run -di --name mycentos7 -p 8080:8080 mycentos:7
+
+#docker image tag mycentos:7 registername/mycentos:7
+#docker login
+username: registername
+password
+#docker image push registername/mycentos:7
+ 
+
