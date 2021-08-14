@@ -64,6 +64,12 @@ $sudo sh get-docker.sh
 #docker rmi ID
 ```
 
+删除所有容器
+
+```
+#docker system prune -f
+```
+
 5. 查看镜像的详细信息
 
   ```
@@ -163,6 +169,11 @@ docker container logs -f <ID or 容器名>
 * 强制删除
 ```
 #docker container rm  c54d -f
+```
+
+* 删除所有容器
+```
+#docker system prune -f
 ```
 
 <br/>
