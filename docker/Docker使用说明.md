@@ -5,6 +5,15 @@
 * [Docker常用命令](#Docker常用命令)
   * [镜像相关命令](#镜像相关命令)  
   * [容器相关命令](#容器相关命令)
+* [复制文件](#复制文件)
+* [目录挂载](#目录挂载)
+  * [多目录挂载](#多目录挂载)
+  * [匿名挂载](#匿名挂载)  
+  * [具名挂载](#具名挂载)
+  * [只读只写](#只读只写)
+  * [继承](#继承)
+  * [查看目录挂载关系](#查看目录挂载关系)
+* [查看容器的IP地址](#查看容器的IP地址)
 
 ---
         
@@ -58,6 +67,20 @@ sudo docker version
 5. 查看镜像的详细信息
 
   `docker image inspect ID`
+
+6. 镜像的导入导出
+导出：
+```
+docker image save 镜像名:标签 -o 镜像文件名
+docker image save centos:7 -o mycentos.imge
+```
+
+导入:
+```
+docker image load -i  镜像文件名
+docker image load -i  mycentos.imge
+```
+
 <br/>
 <br/>
 ### 容器相关命令
@@ -133,8 +156,97 @@ docker container logs -f <ID or 容器名>
 
 * 强制删除
 ```
-docker container rm  c54d -f
+#docker container rm  c54d -f
 ```
 
 <br/>
+
+---
+
+## 复制文件
+
+```
+#docker  cp 本地文件  容器名: 目录名
+#docker cp 容器名:目录文件名 本地目录
+```
+
+如果目标目录名不存在，将创建
+
+---
+
+## 目录挂载
+
+创建容器时 添加参数 : `-v /宿主机目录:/容器目录`
+```
+#docker run -di -v /mydata/docker_centos/data:/usr/local/data --name centos7-01 centos:07 
+```
+
+>若提示权限不足，是因为centos7中的安全模块SELinux把权限禁止了。 可以通过参数 -privileged=true 解决
+
+
+### 多目录挂载：
+
+```
+#docker run -di -v /宿主机目录:/容器目录 -v /宿主机目录2:/容器目录2  镜像名
+``` 
+
+### 匿名挂载
+
+宿主机匿名挂载的目录名默认保存在: `/var/lib/docker/volumes`, 目录名称是自动分配的。
+
+```
+#docker run -di -v /容器目录名 --name myubuntu ubuntu
+```
+
+### 具名挂载
+
+宿主机匿名挂载的目录名默认保存在: `/var/lib/docker/volumes`, 目录名是指定的。
+
+```
+#docker run -di -v 名称:/容器目录名 --name myubuntu02 ubuntu
+```
+
+>目录挂载在： /var/lib/docker/volumes/myubuntu02
+
+
+### 只读只写
+
+**只读： 只能通过宿主机内容实现对容器德数据管理**
+
+参数:  -v /宿主机目录:/容器目录:ro 
+
+<br/>
+
+**可读写：默认**
+
+参数:  -v /宿主机目录:/容器目录:rw
+
+### 继承
+
+使用已有的容器目录挂载关系
+
+参数:  --volume-from 容器名:[ro]
+
+```
+#docker run -di -v /mydata/docker_ubuntu/data:/usr/local/data --name ubuntu-01 ubuntu
+#docker run -di --volume-from ubuntu-01 --name ubuntu-04 ubuntu
+#docker run -di --volume-from ubuntu-01 --name ubuntu-05 ubuntu
+```
+
+### 查看目录挂载关系
+
+```
+#docker volum ls
+#docker inspect 容器名|容器ID
+```
+
+---
+
+## 查看容器的IP地址
+
+```
+#docker inspect 容器名|容器ID
+#docker inspect --format='{{.NetworkSettings.IPAddress}}' 容器名|容器ID
+```
+
 
