@@ -4,11 +4,8 @@
 * [基于现有容器创建镜像](#基于现有容器创建镜像)
 * [基于Dockerfile文件创建镜像](#基于Dockerfile文件创建镜像)
   * [Dockerfile文件常用指令](#Dockerfile文件常用指令)  
-  * [具名挂载](#具名挂载)
-  * [多目录挂载](#多目录挂载)
-  * [只读只写](#只读只写)
-  * [继承](#继承)
-  * [查看目录挂载关系](#查看目录挂载关系)
+  * [Dockerfile构建镜像实例](#Dockerfile构建镜像实例)
+* [上传镜像至DockerHub](#上传镜像至DockerHub)
 
 ---
 获取镜像的三个基本途径
@@ -288,18 +285,27 @@ WORKDIR <工作目录路径>
 
 作用：
 
-避免重要的数据，因容器重启而丢失，这是非常致命的。
-避免容器不断变大。
+* 避免重要的数据，因容器重启而丢失，这是非常致命的。
+ 
+* 避免容器不断变大。
+ 
 格式：
-
+```
 VOLUME ["<路径1>", "<路径2>"...]
 VOLUME <路径>
+```
+ 
 在启动容器 docker run 的时候，我们可以通过 -v 参数修改挂载点。
 
-
+<br/>
  
+### Dockerfile构建镜像实例
 
+```
+// 准备一个空目录
 #mkdir -p /usr/local/dockerfile
+ 
+// 编辑Dockerfile文件
 #cd /usr/local/dockerfile
     #vi Dockerfile
 
@@ -314,18 +320,34 @@ ENV JAVA_HOME /usr/local/java/jdk-11.0.6/
 ENV PATH $PATH:$JAVA_HOME/bin
 CMD ["/usr/local/tomcat/apache-tomcat-9.0.37/bin/catalina.sh","run"]
 
+// 将资源文件复制到本目录
 #cp /root/jdk-11.0.6_linux-x64_bin.tar.gz /usr/local/dockerfile/
 #cp /root/apache-tomcat-9.0.37.tar.gz /usr/local/dockerfile/
-#docker build -f /usr/local/dockerfile/Dockerfile -t mycentos:7 /usr/local/dockerfile/
+ 
+// 构建镜像
+// -f 指定dockerfile文件
+// 最后参数 /usr/local/dockerfile/ 是指资源文件（即 ADD 指令添加的资源）所在的目录名
+#docker build -f /usr/local/dockerfile/Dockerfile -t customcentos:7 /usr/local/dockerfile/
 
+// 查看构建好的镜像文件
 #docker images
 
-#docker run -di --name mycentos7 -p 8080:8080 mycentos:7
+// 使用构建好的镜像创建容器
+#docker run -di --name mycentos7 -p 8080:8080 customcentos:7
 
-#docker image tag mycentos:7 registername/mycentos:7
+```
+##  上传镜像至DockerHub
+上传的镜像名必须符合命名规范:  注册名/镜像名:标签
+ 
+```
+// 生成规范的镜像名
+#docker image tag customcentos:7 registername/customcentos:7
+
+// 登录DockerHub
 #docker login
 username: registername
-password
-#docker image push registername/mycentos:7
+password: xxxxxxx
  
-
+#docker image push registername/customcentos:7
+ 
+```
