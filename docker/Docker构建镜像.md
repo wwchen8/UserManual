@@ -8,9 +8,13 @@
 * [上传镜像至DockerHub](#上传镜像至DockerHub)
 
 ---
+
 获取镜像的三个基本途径
+
 a. 从网络社区直接拉取，（pull from registry）
+
 b. 从Dockerfile构建一个镜像，这种像是DIY一个镜像，但是整个构建过程是需要联网，因为需要西在基础镜像，然后根据基础镜像进行构建（build from Dockerfile）。
+
 c. 自有文件的导入，可以从本地导入已经构建好的镜像文件，在没有网络的时候可以用。这个文件是通过 已有的镜像导出来的压缩包，然后就可以进行使用了。        
 
 ## 基于现有容器创建镜像
@@ -238,6 +242,12 @@ ENTRYPOINT ["<executeable>","<param1>","<param2>",...]
 
 **可以搭配 CMD 命令使用：一般是变参才会使用 CMD ，这里的 CMD 等于是在给 ENTRYPOINT 传参**，以下示例会提到。
 
+>ENTRYPOINT和CMD的区别：
+ 
+>* CMD设置的命令，可以在 docker container run 时传入其它命令，覆盖掉 CMD 的命令，但是ENTRYPOINT所设置的命令时一定会被执行的。
+ 
+>* ENTRYPOINT 和 CMD 可以联合使用， ENTRYPOINT 设置执行的命令，CMD传递参数。 
+ 
 示例：
 
 假设已通过 Dockerfile 构建了 nginx:test 镜像：
@@ -336,6 +346,9 @@ CMD ["/usr/local/tomcat/apache-tomcat-9.0.37/bin/catalina.sh","run"]
 #docker run -di --name mycentos7 -p 8080:8080 customcentos:7
 
 ```
+
+---
+ 
 ##  上传镜像至DockerHub
 上传的镜像名必须符合命名规范:  注册名/镜像名:标签
  
