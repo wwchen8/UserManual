@@ -173,7 +173,7 @@ ADD 指令和 COPY 的使用格类似（同样需求下，官方推荐使用 COP
  
 7. ENV
 
-设置环境变量，定义了环境变量，那么在后续的指令中，就可以使用这个环境变量。
+设置环境变量，定义了环境变量，那么在后续的指令中，就可以使用这个环境变量，并在镜像容器中生效。
 
 格式：
 ``` 
@@ -190,8 +190,20 @@ RUN curl -SLO "https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-
 ```
 
  <br/>
+
+8. ARG
+
+在Dockerfile文件中作为变量使用。与 ENV 不同的是不会在镜像容器中产生任何影响。
  
-8. CMD
+```
+ARG arg_name
+ARG arg_name=value
+``` 
+ >在构建镜像时，可以使用参数 --build-arg arg_name=other_value 进行另外赋值
+ 
+<br/>
+ 
+9. CMD
  
 类似于 RUN 指令，用于运行程序，但二者运行的时间点不同:
 
@@ -204,13 +216,14 @@ RUN curl -SLO "https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-
 >注意：如果 Dockerfile 中如果存在多个 CMD 指令，仅最后一个生效。
 
 格式：
-
+```
 CMD <shell 命令> 
 CMD ["<可执行文件或命令>","<param1>","<param2>",...] 
 CMD ["<param1>","<param2>",...]  # 该写法是为 ENTRYPOINT 指令指定的程序提供默认参数
+```
 推荐使用第二种格式，执行过程比较明确。第一种格式实际上在运行的过程中也会自动转换成第二种格式运行，并且默认可执行文件是 sh。
 
-9. ENTRYPOINT
+10. ENTRYPOINT
  
 类似于 CMD 指令，但其不会被 docker run 的命令行参数指定的指令所覆盖，而且这些命令行参数会被当作参数送给 ENTRYPOINT 指令指定的程序。
 
