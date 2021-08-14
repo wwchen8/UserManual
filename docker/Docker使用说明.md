@@ -67,7 +67,7 @@ $sudo sh get-docker.sh
 删除所有容器
 
 ```
-#docker system prune -f
+#docker system prune -a
 ```
 
 5. 查看镜像的详细信息
