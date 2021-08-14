@@ -69,6 +69,7 @@ sudo docker version
   `docker image inspect ID`
 
 6. 镜像的导入导出
+
 导出：
 ```
 docker image save 镜像名:标签 -o 镜像文件名
@@ -82,7 +83,7 @@ docker image load -i  mycentos.imge
 ```
 
 <br/>
-<br/>
+
 ### 容器相关命令
 
 1. 查看容器
