@@ -3,7 +3,7 @@
 ## 目录
 * [基于现有容器创建镜像](#基于现有容器创建镜像)
 * [基于Dockerfile文件创建镜像](#基于Dockerfile文件创建镜像)
-  * [匿名挂载](#匿名挂载)  
+  * [Dockerfile文件常用指令](#Dockerfile文件常用指令)  
   * [具名挂载](#具名挂载)
   * [多目录挂载](#多目录挂载)
   * [只读只写](#只读只写)
@@ -95,7 +95,8 @@ LABEL maintainer="Jerry Chen"
 
 * shell 格式：
 
-RUN <命令行命令> # <命令行命令> 等同于，在终端操作的 shell 命令。
+RUN <命令行命令> 
+<命令行命令> 等同于，在终端操作的 shell 命令。
 
 * exec 格式：
 
@@ -104,71 +105,96 @@ RUN ["可执行文件", "参数1", "参数2"]
  RUN ["./test.php", "dev", "offline"]  //等价于 RUN ./test.php dev offline
 ```
 
-注意：Dockerfile 的指令每执行一次都会在 docker 上新建一层。所以过多无意义的层，会造成镜像膨胀过大。例如：
+**注意**
+Dockerfile 的指令每执行一次都会在 docker 上新建一层。所以过多无意义的层，会造成镜像膨胀过大。例如：
 
+```
 FROM centos
 RUN yum install wget
 RUN wget -O redis.tar.gz "http://download.redis.io/releases/redis-5.0.3.tar.gz"
 RUN tar -xvf redis.tar.gz
+```
 以上执行会创建 3 层镜像。可简化为以下格式：
-
+```
 FROM centos
 RUN yum install wget \
     && wget -O redis.tar.gz "http://download.redis.io/releases/redis-5.0.3.tar.gz" \
     && tar -xvf redis.tar.gz
+```
 以 && 符号连接命令，这样执行后，只会创建 1 层镜像。
 
-COPY
-复制指令，从上下文目录中复制文件或者目录到容器里指定路径。
+<br/>
+4. COPY
 
-格式：
-COPY [--chown=<user>:<group>] <源路径1>...  <目标路径>
+复制指令，从上下文目录(由WORKDIR指定)中复制文件或者目录到容器里指定路径。
+
+格式:  
+COPY [--chown=<user>:<group>] <源路径1>...  <目标路径>  
 COPY [--chown=<user>:<group>] ["<源路径1>",...  "<目标路径>"]
-[--chown=<user>:<group>]：可选参数，用户改变复制到容器内文件的拥有者和属组。
+ 
+>[--chown=<user>:<group>]：可选参数，用户改变复制到容器内文件的拥有者和属组。
+><源路径>：源文件或者源目录，这里可以是通配符表达式，其通配符规则要满足 Go 的 filepath.Match 规则。例如：
+><目标路径>：容器内的指定路径，该路径不用事先建好，路径不存在的话，会自动创建。
 
-<源路径>：源文件或者源目录，这里可以是通配符表达式，其通配符规则要满足 Go 的 filepath.Match 规则。例如：
-
+ ```
 COPY hom* /mydir/
 COPY hom?.txt /mydir/
-<目标路径>：容器内的指定路径，该路径不用事先建好，路径不存在的话，会自动创建。
-
-ADD
+ ```
+<br/>
+5. ADD
+ 
 ADD 指令和 COPY 的使用格类似（同样需求下，官方推荐使用 COPY）。功能也类似，不同之处如下：
 
-ADD 的优点：在执行 <源文件> 为 tar 压缩文件的话，压缩格式为 gzip, bzip2 以及 xz 的情况下，会自动复制并解压到 <目标路径>。
-ADD 的缺点：在不解压的前提下，无法复制 tar 压缩文件。会令镜像构建缓存失效，从而可能会令镜像构建变得比较缓慢。具体是否使用，可以根据是否需要自动解压来决定。
+>ADD 的优点：在执行 <源文件> 为 tar 压缩文件的话，压缩格式为 gzip, bzip2 以及 xz 的情况下，会自动复制并解压到 <目标路径>。
 
-EXPOSE
+>ADD 的缺点：在不解压的前提下，无法复制 tar 压缩文件。会令镜像构建缓存失效，从而可能会令镜像构建变得比较缓慢。具体是否使用，可以根据是否需要自动解压来决定。
+
+<br/>
+6. EXPOSE
+ 
 仅仅只是声明端口。
 
-作用：
-帮助镜像使用者理解这个镜像服务的守护端口，以方便配置映射。
-在运行时使用随机端口映射时，也就是 docker run -P 时，会自动随机映射 EXPOSE 的端口。
-格式：
-EXPOSE <端口1> [<端口2>...]
+作用:  
+>帮助镜像使用者理解这个镜像服务的守护端口，以方便配置映射。
 
-ENV
+>在运行时使用随机端口映射时，也就是 docker run -P 时，会自动随机映射 EXPOSE 的端口。
+
+格式：  
+```
+ EXPOSE <端口1> [<端口2>...]
+```
+ 
+<br/>
+7. ENV
+
 设置环境变量，定义了环境变量，那么在后续的指令中，就可以使用这个环境变量。
 
 格式：
+``` 
 ENV <key> <value>
 ENV <key1>=<value1> <key2>=<value2>...
+```
 
-以下示例设置 NODE_VERSION = 7.2.0 ， 在后续的指令中可以通过 $NODE_VERSION 引用：
-
+ 以下示例设置 `NODE_VERSION = 7.2.0` ， 在后续的指令中可以通过 `$NODE_VERSION` 引用：
+```
 ENV NODE_VERSION 7.2.0
 
 RUN curl -SLO "https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-x64.tar.xz" \
   && curl -SLO "https://nodejs.org/dist/v$NODE_VERSION/SHASUMS256.txt.asc"
+```
 
-CMD
+ <br/>
+8. CMD
+ 
 类似于 RUN 指令，用于运行程序，但二者运行的时间点不同:
 
-CMD 在docker run 时运行。
-RUN 是在 docker build。
-作用：为启动的容器指定默认要运行的程序，程序运行结束，容器也就结束。CMD 指令指定的程序可被 docker run 命令行参数中指定要运行的程序所覆盖。
+>CMD 在docker run 时运行。
 
-注意：如果 Dockerfile 中如果存在多个 CMD 指令，仅最后一个生效。
+>RUN 是在 docker build。
+
+ 作用：为启动的容器指定默认要运行的程序，程序运行结束，容器也就结束。CMD 指令指定的程序可被 docker run 命令行参数中指定要运行的程序所覆盖。
+
+>注意：如果 Dockerfile 中如果存在多个 CMD 指令，仅最后一个生效。
 
 格式：
 
@@ -177,7 +203,8 @@ CMD ["<可执行文件或命令>","<param1>","<param2>",...]
 CMD ["<param1>","<param2>",...]  # 该写法是为 ENTRYPOINT 指令指定的程序提供默认参数
 推荐使用第二种格式，执行过程比较明确。第一种格式实际上在运行的过程中也会自动转换成第二种格式运行，并且默认可执行文件是 sh。
 
-ENTRYPOINT
+9. ENTRYPOINT
+ 
 类似于 CMD 指令，但其不会被 docker run 的命令行参数指定的指令所覆盖，而且这些命令行参数会被当作参数送给 ENTRYPOINT 指令指定的程序。
 
 但是, 如果运行 docker run 时使用了 --entrypoint 选项，将覆盖 CMD 指令指定的程序。
@@ -213,7 +240,8 @@ $ docker run  nginx:test -c /etc/nginx/new.conf
 nginx -c /etc/nginx/new.conf
 
 
-WORKDIR
+10. WORKDIR
+ 
 指定工作目录。用 WORKDIR 指定的工作目录，会在构建镜像的每一层中都存在。（WORKDIR 指定的工作目录，必须是提前创建好的）。
 
 docker build 构建镜像过程中的，每一个 RUN 命令都是新建的一层。只有通过 WORKDIR 创建的目录才会一直存在。
@@ -222,7 +250,8 @@ docker build 构建镜像过程中的，每一个 RUN 命令都是新建的一�
 
 WORKDIR <工作目录路径>
 
-VOLUME
+11. VOLUME
+ 
 定义匿名数据卷。在启动容器时忘记挂载数据卷，会自动挂载到匿名卷。
 
 作用：
