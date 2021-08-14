@@ -28,8 +28,8 @@ $sudo sh get-docker.sh
 ```
 启动Docker服务进程:
 ```
-sudo systemctl start docker
-sudo docker version
+#sudo systemctl start docker
+#sudo docker version
 ```
 ---
 ## Docker常用命令
@@ -66,20 +66,22 @@ sudo docker version
 
 5. 查看镜像的详细信息
 
-  `docker image inspect ID`
+  ```
+  #docker image inspect ID
+  ```
 
 6. 镜像的导入导出
 
 导出：
 ```
-docker image save 镜像名:标签 -o 镜像文件名
-docker image save centos:7 -o mycentos.imge
+#docker image save 镜像名:标签 -o 镜像文件名
+#docker image save centos:7 -o mycentos.imge
 ```
 
 导入:
 ```
-docker image load -i  镜像文件名
-docker image load -i  mycentos.imge
+#docker image load -i  镜像文件名
+#docker image load -i  mycentos.imge
 ```
 
 <br/>
