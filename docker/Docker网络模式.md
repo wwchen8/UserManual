@@ -70,3 +70,85 @@ container网络模式是Docker中易中特别的网络模式。在创建容器�
 >它并没有改善容器与宿主机以外世界通信的情况（和桥接模式一样，不能连接宿主机以外的其他设备）。
 
 
+2. 自定义网络模式
+自定义网络模式,docker提供了三种自定义网络驱动:
+bridge
+overlay
+macvlan
+bridge驱动类似默认的bridge网络模式,但增加了一些新的功能,overlay和macvlan是用于创建跨主机网络。
+建议使用自定义的网络来控制哪些容器可以相互通信,还可以自动DNS解析容器名称到IP地址。
+
+从Docker1.10版本开始，docker daemon实现了一个内嵌的DNS Server，使容器可以直接通过容器名进行通信。
+方法很简单，只要在创建容器时使用 --name 为容器命名即可。 但使用Docker DNS有个限制，只能在 user-defined 网络中使用。默认的bridge网络时无法使用DNS的。
+
+
+创建网络
+
+1.使用自动分配的ip地址和网关地址
+通过 docker network create 命令创建自定义网络模式。
+
+# docker network create  my_net1     // -d bridge 默认值
+
+# docker network ls
+# ip addr
+查看bridge自定义网络（自动分配的ip地址和网关地址）的网关地址
+
+docker network inspect my_net1 
+查看bridge自定义网络（自动分配的ip地址和网关地址）的信息
+
+使用自定义网络模式创建容器
+#docker run -it  --name bbox6 --network=my_net1 busybox
+
+#docker run -it  --name bbox7 --network=my_net1 busybox
+    # ping bbox6 
+
+在自定义网桥上（自定义的ip地址和网关地址），同一网桥上的容器是可以通信的。
+
+2、使用–ip参数可以指定容器ip地址，
+但必须是在自定义网桥上（自定义的ip地址和网关地址），默认的bridge模式不支持，同一网桥上的容器是可以通信的
+值的注意的是：
+
+docker的bridge自定义网络之间默认是有域名解析的；
+docker的bridge自定义网络与系统自带的网桥之间默认是有解析的；
+但是docker的系统自带的网桥之间默认是没有解析的。
+
+docker network create --subnet=172.21.0.0/24 --gateway=172.21.0.1 my_net2
+
+使用自定义网桥创建容器,，自定义ip地址：
+docker run -it --name bbox7--network=my_net2 --ip=172.21.0.7 busybox
+docker run -it --name bbox8--network=my_net2 --ip=172.21.0.8 busybox
+
+默认使用不同网桥的容器是不可以通讯的。
+
+连接网络
+通过 docker network connect 网络名称 容器名称 为容器连接新的网络模式
+
+断开网络
+通过 docker network disconnect 网络名称 容器名称 命令断开网络
+
+
+移除网络
+通过 docker network rm 网络名称 命令移除自定义网络模式。移除成功后会返回网络模式名称。
+主要： 如果通过某个自定义网络模式创建了容器，则该网络模式无法删除。
+
+
+
+
+三、使两个不同网桥的容器通信
+我们现在的vm1使用的是my_net1网桥，vm3使用的是my_net2网桥，默认是不能通讯的。
+
+使用 docker network connect命令为vm1添加一块my_net2 的网卡
+
+[root@server1 ~]# docker network connect my_net2 vm1
+[root@server1 ~]# docker attach vm1
+
+可以成功通讯！！！
+
+值的注意的是：
+
+docker的bridge自定义网络之间：双方可以随便添加对方的网卡
+docker的bridge自定义网络与系统自带的网桥之间：只能是，系统自带的网桥对应的容器添加bridge自定义网络对应的容器的网卡。而反过来会报错。
+但是docker的系统自带的网桥之间：是可以通信的，因为是在一个网络桥接上。
+
+
+
