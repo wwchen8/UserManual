@@ -162,19 +162,19 @@ Hell World
 
 # 跨平台编译
 
-以前运行和安装，都是默认根据我们当前的机器生成的可执行文件，比如你的是Linux 64位，就会生成Linux 64位下的可执行文件，比如我的Mac，可以使用go env查看编译环境,以下截取重要的部分。
+以前运行和安装，都是默认根据我们当前的机器生成的可执行文件，比如你的是Linux 64位，就会生成Linux 64位下的可执行文件，比如树莓派3B+，可以使用`go env`查看编译环境,以下截取重要的部分。
 ```
 ~$ go env
-GOARCH="amd64"
+GOARCH="arm"
 GOEXE=""
-GOHOSTARCH="amd64"
-GOHOSTOS="darwin"
-GOOS="darwin"
+GOHOSTARCH="arm"
+GOHOSTOS="linux"
+GOOS="linux"
 GOROOT="/usr/local/go"
-GOTOOLDIR="/usr/local/go/pkg/tool/darwin_amd64"
+GOTOOLDIR="/usr/local/go/pkg/tool/linux_arm"
 ```
 
-注意里面两个重要的环境变量GOOS和GOARCH,其中GOOS指的是目标操作系统，它的可用值为：
+注意里面两个重要的环境变量`GOOS`和`GOARCH`,其中`GOOS`指的是目标操作系统，它的可用值为：
 ```
 aix
 android
@@ -212,7 +212,7 @@ wasm
 GOOS=linux GOARCH=amd64 go build flysnow.org/tour
 ```
 
-前面两个赋值，是更改环境变量，这样的好处是只针对本次运行有效，不会更改我们默认的配置。
+>前面两个赋值，是更改环境变量，这样的好处是只针对本次运行有效，不会更改我们默认的配置。
 
 # 获取远程包
 
@@ -227,9 +227,9 @@ go env -w GOPROXY=https://goproxy.io,direct
 ```
 go get -v github.com/spf13/cobra
 ```
-就可以下载这个库到我们`$GOPATH/pkg/mod`目录下了，这样我们就可以像导入其他包一样import了。
+就可以下载这个库到我们`$GOPATH/pkg/mod`目录下了，这样我们就可以像导入其他包一样`import`了。
 
-特别提醒，go get的本质是使用源代码控制工具下载这些库的源代码，比如git，hg等，所以在使用之前必须确保安装了这些源代码版本控制工具。
+特别提醒，`go get`的本质是使用源代码控制工具下载这些库的源代码，比如git，hg等，所以在使用之前必须确保安装了这些源代码版本控制工具。
 
 如果我们使用的远程包有更新，我们可以使用如下命令进行更新,多了一个-u标识。
 
@@ -262,4 +262,4 @@ go env -w GOPRIVATE=git.flysnow.org
 go get -v -insecure git.flysnow.org/hello
 ```
 
-仔细看，多了一个-insecure标识，因为我们使用的是http协议， 是不安全的。当然如果你自己搭建的gitlab支持https协议，就不用加-insecure了，同时把上面的url insteadOf换成https的就可以了。
+仔细看，多了一个`-insecure`标识，因为我们使用的是http协议， 是不安全的。当然如果你自己搭建的gitlab支持https协议，就不用加`-insecure`了，同时把上面的url insteadOf换成https的就可以了。
