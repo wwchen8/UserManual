@@ -5,7 +5,7 @@
 * [Linux下安装](#Linux下安装)
 * [GOPATH目录](#GOPATH目录)
 * [go项目工程结构](#go项目工程结构)
-* [Hello World](#Hello World)
+* [Hello World](#HelloWorld)
 * [安装程序](#安装程序)
 * [跨平台编译](#跨平台编译)
 * [获取远程包](#获取远程包)
@@ -114,7 +114,7 @@ import (
 
 所以最后项目目录类似上面的结构，每个子目录都是一个包，子目录里可以放go文件。
 
-# Hello World
+# HelloWorld
 
 有了tour项目，就可以演示下Go语言版本的Hello World了，在tour根目录下的`main.go`文件中，添加如下Go代码。
 ```go
