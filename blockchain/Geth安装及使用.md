@@ -1,5 +1,18 @@
-
-
+# 目录
+* [Geth介绍](#Geth介绍)
+  * [节点类型](#节点类型)
+* [源码安装Geth](#源码安装Geth)
+* [启动节点同步](#启动节点同步)
+  * [启动同步测试网](#启动同步测试网)
+* [利用Geth搭建自己的私有链](#利用Geth搭建自己的私有链)
+  * [准备创世区块描述文件genesis.json](#准备创世区块描述文件genesis.json)
+  * [初始化创世纪区块](#初始化创世纪区块)
+  * [启动私有区块链](#启动私有区块链)
+  * [以dev模式启动私有区块链](#以dev模式启动私有区块链)
+  * [连接Geth三种方式](#连接Geth三种方式)
+* [Geth客户端下常用指令](#Geth客户端下常用指令)
+*
+---
 # Geth介绍
 为了与区块链进行通信，必须使用区块链客户端。客户端是能够与其他客户建立p2p通信信道，签署和广播交易，挖掘，部署和与智能合约交互等的软件。
 客户端通常被称为节点。
@@ -21,7 +34,7 @@
 全节点是整个主链的一个副本，存储并维护链上的所有数据，并随时验证新区块的合法性。每个全节点都可以帮助其他新节点获取区块数据，并提供所有交易和合约的独立验证。
 运行全节点将耗费巨大的成本，包括硬件资源和带宽。
 
-
+---
 # 源码安装Geth
 
 1. 克隆 github 仓库
@@ -54,6 +67,7 @@ GOPATH=/home/ubuntu/project
 GOROOT=/usr/local/go
 ```
 
+---
 # 启动节点同步
 
 安装好了安装好了Geth，现在我们可以尝试运行一下它。geth就会开始同步区块，并存储就会开始同步区块，并存储在当前目录下。
@@ -78,11 +92,12 @@ $ geth --testnet --datadir . --syncmode fast
   
     --rinkeby     Rinkeby网络: 预配置的POA(proof-of-authority)测试网络
 
+---
 # 利用Geth搭建自己的私有链
 
 因为公共网络的区块数量太多，同步耗时太长，我们为了方便快速了解 Geth ，可以试着用它来搭一个只属于自己的私链。
 
-## 准备创世区块描述文件 genesis.json
+## 准备创世区块描述文件genesis.json
 
 genesis.json内容如下:
 
@@ -189,4 +204,60 @@ geth --exec 'eth.coinbase' attach http://localhost:8545
 3. WebSocket 方式
 ```
 geth attach ws://localhost:8546
+```
+
+---
+# Geth客户端下常用指令
+
+Geth客户端console是一个交互式的 JavaScript 执行环境，在这里面可以执行 JavaScript 代码，其中 > 是命令提示符。在这个环境里也内置了一些用来操作以太坊的 JavaScript 对象，可以直接使用这些对象。这些对象主要包括：
+
+* eth：包含一些跟操作区块链相关的方法；
+* net：包含一些查看p2p网络状态的方法；
+* admin：包含一些与管理节点相关的方法；
+* miner：包含启动&停止挖矿的一些方法；
+* personal：主要包含一些管理账户的方法；
+* txpool：包含一些查看交易内存池的方法；
+* web3：包含了以上对象，还包含一些单位换算的方法
+
+进入以太坊 Javascript Console 后，就可以使用里面的内置对象做一些操作，这些内置对象提供的功能很丰富，比如查看区块和交易、创建账户、挖矿、发送交易、部署智能合约等。
+
+常用命令有：
+
+**net模块**
+``` javascript
+> net.listening             //查看节点状态 
+> net.peerCount             // 查看节点链接的数量
+```
+
+**账户操作**
+``` javascript
+> eth.accounts          //查看账户
+> personal.listAccounts                 //查看账户
+> personal.newAccount()                 //新建账户
+> personal.unlockAccount("**********")  //解锁账户
+> personal.lockAccount("**********")    //锁定账户
+> eth.getBalance(eth.accounts[0])       //账户余额
+```
+
+查看/修改coinbase帐户，coinbase接收挖矿奖励，默认为创建的第一个账户eth.accounts[0]：
+``` javascript
+> eth.coinbase
+> miner.setEtherbase(eth.accounts[0])
+```
+
+**发送交易**
+``` javascript
+> eth.sendTransaction({from: "0xb5f49168e69df3030541199f5a5b3442bb40172c", to: "0x26d6e7a5593bd71bfc7e8d1042a975f6e29ee794", value: web3.toWei(2, "ether")})
+```
+**查看交易信息，区块信息和区块高度**
+``` javascript
+> eth.getTransaction("交易hash")
+> eth.getBlock(区块号)
+> eth.blockNumber
+```
+
+**挖矿、结束挖矿**
+``` javascript
+> miner.start(1)
+> miner.stop()
 ```
