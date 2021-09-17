@@ -25,27 +25,27 @@ go语言预声明的标识符包括关键字、内置数据类型标识符，常
 
 关键字：25个
 ```go
-package		// 定义包名         struct			// 定义结构类型
-import		// 导入包           interface		 // 定义接口类型
-const		// 常量声明			map				// 声明或创建map类型
-var			// 变量声明			chan			// 声明或创建通道类型
-func		// 函数定义
-defer		// 延迟执行
-go			// 并发语法糖
-return		// 函数返回
+package     // 定义包名         struct        // 定义结构类型
+import      // 导入包           interface     // 定义接口类型
+const       // 常量声明         map           // 声明或创建map类型
+var         // 变量声明         chan          // 声明或创建通道类型
+func        // 函数定义
+defer       // 延迟执行
+go          // 并发语法糖
+return      // 函数返回
 
-if		else						//	if else 语句
-for		range	break	continue	//	for循环语句
-switch	select	type	case	default		fallthrough	// switch和select语句  
-goto		// goto跳转语句	        	 	  	       	    		   	 	  
+if		else                        // if else 语句
+for		range	break	continue    // for循环语句
+switch  select  type  case  default  fallthrough  // switch和select语句  
+goto     // goto跳转语句	        	 	 
 ```
 
 内置类型： 20个
 
 ```go
 整型
-	byte	int		int8	int16	int32		int64
-	uintprt	uint	uint8	unit16	unint32		uint64
+	byte    int     int8    int16   int32   int64
+	uintprt uint    uint8   unit16  unint32  uint64
 浮点
 	float32		float64
 复数
@@ -59,22 +59,20 @@ goto		// goto跳转语句
 ```
 
 
-
 内置函数:  15个
 
 ```go
-make	new		len		cap		append		copy	delete		panic		recover
-close	complex	real	image	Print		Println
+make   new   len   cap   append   copy   delete   panic   recover
+close  complex   real   image   Print   Println
 ```
-
 
 
 常量值标识符:  4个
 
 ```go
-true	false	// bool类型的常量: 真和假
-iota			// 用在连续的枚举类型声明中
-nil				// 指针/引用型的变量的默认值为nil
+true	false   // bool类型的常量: 真和假
+iota            // 用在连续的枚举类型声明中
+nil             // 指针/引用型的变量的默认值为nil
 ```
 
 
