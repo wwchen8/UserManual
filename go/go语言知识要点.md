@@ -7,11 +7,460 @@
 * [数组、切片和映射](#数组、切片和映射)
   * [数组](#数组)
   * [切片](#切片)
+  * [映射map](#映射map)
+
+
 
 
 
 
 ---
+# 基础知识
+
+## 标识符
+
+go语言的标识符构成规则：开头一个字符必须是字母或下划线_,后面跟任意多个字符、字母或下划线，并区分大小写。
+
+go语言预声明的标识符包括关键字、内置数据类型标识符，常量值标识符、内置函数和空白标识符。
+
+关键字：25个
+```go
+package		// 定义包名         struct			// 定义结构类型
+import		// 导入包           interface		 // 定义接口类型
+const		// 常量声明			map				// 声明或创建map类型
+var			// 变量声明			chan			// 声明或创建通道类型
+func		// 函数定义
+defer		// 延迟执行
+go			// 并发语法糖
+return		// 函数返回
+
+if		else						//	if else 语句
+for		range	break	continue	//	for循环语句
+switch	select	type	case	default		fallthrough	// switch和select语句  
+goto		// goto跳转语句	        	 	  	       	    		   	 	  
+```
+
+内置类型： 20个
+
+```go
+整型
+	byte	int		int8	int16	int32		int64
+	uintprt	uint	uint8	unit16	unint32		uint64
+浮点
+	float32		float64
+复数
+	complex64	complex128
+字符和字符串型
+	string		rune
+接口型
+	error
+布尔型
+	bool
+```
+
+
+
+内置函数:  15个
+
+```go
+make	new		len		cap		append		copy	delete		panic		recover
+close	complex	real	image	Print		Println
+```
+
+
+
+常量值标识符:  4个
+
+```go
+true	false	// bool类型的常量: 真和假
+iota			// 用在连续的枚举类型声明中
+nil				// 指针/引用型的变量的默认值为nil
+```
+
+
+
+空标识符:  1个
+
+```go
+_
+```
+
+
+
+## 复合数据类型
+
+基本的复合数据类型有指针、数组、切片、map、通道chan、结构和接口
+
+### 指针
+
+声明:  *T
+
+结构体指针访问结构体字段仍然使用 "."操作符，没有 -> 操作符。
+
+
+
+### struct
+
+通常使用自定义struct类型声明格式：
+
+```go
+type TypeName struct{
+    FieldName FeildType
+    FieldName FeildType
+    FieldName FeildType
+}
+```
+
+struct初始化推荐使用字段名的初始化方式:
+
+```go
+type Person struct{
+	Name string
+	Age  int
+}
+p:=Person{
+	Name: "shei",
+	Age: 12,
+}
+```
+
+
+
+## 控制结构
+
+### if 语句
+
+- if后面的条件判断不需要小括号括起来， { 必须在行尾与if或if else方法一行。
+
+- if后面可以带一个简单的初始化语句，并以分号分割，其声明的变量作用域在整个if语句块。
+
+
+```go
+if x:=f(); x < y {	//初始化语句中声明变量x
+    return x
+}else if x > z {	// x作用域在整个if语句块
+    return z
+}else {
+    return y
+}
+```
+
+### switch语句
+
+- switch后面可以带一个可选的初始化语句
+
+- switch后面的表达式也是可选的
+
+- 通过fallthrough语句强制执行下一个case子句（不再检测条件）
+
+- swicth支持default语句，default语句可以放到任意位置。
+
+
+```go
+switch i:="y"; i {  // 可带初始化语句
+    case "y", "Y":
+    	fmt.Println("yes")
+    	fallthrough		// 直接跳过下一个case条件表达式，执行下一个语句
+    case "n", "N":
+    fmt.Println("no")
+}
+
+score：= 85
+grade := ''
+switch{
+    case score >= 90:
+    	grade = 'A'
+    case score >= 80:
+    	grade = 'B'
+    case score >= 60:
+    	grade = 'C'
+    default:
+    	grade = 'F'    
+}
+```
+
+
+
+### for 语句
+
+三种使用场景：
+
+```go
+for init; condition; post { }
+```
+
+```go
+for condition {  }	//类似 while语句
+```
+
+```go
+for {  }	// 类似 while(1)死循环语句
+```
+
+for 还有一种用法，是对数组、切片、宇符串、map 和通道的访问，语法格式如下：
+
+```go
+// 访问map
+for key, value := range map {  }
+for key := range map {  }
+
+// 访问数组
+for index, value := range arry {  }
+for index := range arry {  }
+for _, value := range arry {  }
+
+// 访问切片
+for index, value := range slice {  }
+for index := range slice {  }
+for _, value := range slice {  }
+
+// 访问通道
+for value := range channel {  }
+```
+
+
+
+### 标签和跳转
+
+1. 标签
+
+标签（ Lable ）标识一个语句的位置，用于goto 、break 、continue 语句的跳转，标标签语法: 
+
+```go
+Label:  Statement
+```
+
+2. goto
+
+goto 语句用于**函数的内部的跳转**，需要配合标签一起使用， 具体的格式如下：
+
+```
+goto Lable
+```
+
+- goto 语句只能在函数内跳转。
+- goto 语句不能跳过内部变量声明语句。
+- goto i吾句只能跳到同级作用域或者上层作用域内，不能跳到内部作用域内。
+
+3. break
+
+break 用于函数内跳出for 、sw itch 、select 语句的执行，有两种使用格式：
+
+- 单独使用，用于跳出break 当前所在的for 、switch 、select 语句的执行。
+- 和标签一起使用，用于跳出标签所标识的for 、switch 、select 语句的执行，可用于跳出多重循环，但标签和break 必须在同一个函数内。
+
+4. continue
+
+continue 用于跳出for 循环的本次选代，跳到for 循环的下一次选代的post 语句处执行，也有两种使用格式：
+
+-  单独使用，用于跳出continue 当前所在的for 循环的本次迭代。
+- 和标签一起使用，用于跳出标签所标识的for 语句的本次选代，但标签和continue 必须在同一个函数内。
+
+
+
+---
+
+# 函数
+
+
+
+## 基本概念
+
+- 
+  函数是一种类型，函数类型变量可以像其他类型变量一样使用，可以作为其他函数的参数或返回值，也可以直接调用执行。
+- 函数支持多值返回。也可以没有返回值。
+- 支持闭包。
+- 函数支持可变参数。也可以没有输入参数。
+- 不支持默认值参数。
+- 不支持函数重载。
+- 不支持函数嵌套，严格地说是不支持命名函数的嵌套定义，但支持嵌套匿名函数。
+
+### 多值返回
+
+```go
+func swap (a, b int) (int, int) {
+	return b, a
+}
+```
+
+如果多值返回值有错误类型，则一般将错误类型作为最后一个返回值。
+
+### 实参到形参的传递
+
+Go 函数实参到形参的传递永远是值拷贝。如果实参是一个指针变量，传递给形参的是这个指针变量的副本，
+二者指向同一地址， 本质上参数传递仍然是值拷贝。
+
+### 不定参数
+
+不定参数声明使用param ...type 的语法格式。
+
+- 所有的不定参数类型必须是相同的。
+- 不定参数必须是函数的最后一个参数。
+- 不定参数名在函数体内相当于切片，对切片的操作同样适合对不定参数的操作。
+
+- 切片可以作为参数传递给不定参数，切片名后要加上“..." 。 数纽不可以作为实参传递给不定参数的函数。
+
+```go
+func sum(arr ...int) (sum int) {
+    for _, v := range arr {   // 此时arr 就相当于切片，可以使用range 访问
+		sum += v
+    }
+	return
+}
+
+func main() {
+    slice :=  []int {l, 2, 3, 4}
+    array :=  [...]int {1, 2, 3, 4}
+    
+	// 数纽不可以作为实参传递给不定参数的函数
+    sum (slice...)
+}
+```
+
+- 形参为不定参数的函数和形参为切片的函数类型不相同。
+
+```go
+func suma (arr ...int) (sum int) { ... }
+func sumb (arr []int) (sum int) { ... }
+```
+
+
+
+## 函数签名和匿名函数
+
+### 函数签名
+
+函数类型也叫函数签名。
+
+```go
+func add (a , b int) int { ... }    // 函数定义
+fmt.Printf("%T\n", add)				//  func (int, int) int  函数签名
+```
+
+两个函数类型相同的条件是：拥有相同的形参列表和返回值列表（列表元素的次序、个数和类型都相同），形参名可以不同。
+
+**可以使用type 定义函数类型，函数类型变量可以作为函数的参数或返回值。**
+
+```go
+package main
+import "fmt"
+
+func add(a, b int) int {
+	return a + b
+}
+
+func sub(a, b int) int {
+	return a - b
+}
+
+type Op func(int, int) int 	// 定义一个函数类型，输入的是两个int类型，返回位是一个int类型
+
+func do(f Op， a， b int) int {  // 定义一个函数，第一个参数是函数类型Op
+	return f(a, b)	 // 函数类型变量可以直接用来进行函数调用
+}
+
+func main() {
+    a := do(add, 1, 2) 	// 函数名add 可以当作相同函数类型形参，不需妥强制类型转换
+	fmt.Println(a)		// 3
+	s := do(sub, 1, 2)
+	fmt.Println(s) 		// - 1
+}
+```
+
+函数类型和map、slice、chan 一样，实际函数类型变量和函数名都可以当作指针变量，该指针指向函数代码的开始位置。通常说函数类型变量是一种引用类型，未初始化的函数类型的变量的默认值是ni l 。
+
+### 匿名函数
+
+匿名函数可以看作函数字面量， 所有直接使用函数类型变量的地方都可以由匿名函数代替。医名函数可以直接赋值给函数变量，可以当作实参，也可以作为返回值，还可以直接被调用。
+
+```go
+// 匿名函数被直接赋值函数交量
+var sum = func(a , b int) int {
+	return a + b
+}
+
+//匿名函数作为返回值
+func wrap(op string) func(int, int) int {
+	switch op {
+        case "add":
+			return func(a, b int) int {
+						return a + b
+            		}
+        default:
+			return nil
+    }
+}
+
+//匿名函数直接被调用
+defer func () {
+	if err := recover(); err != nil {
+		fmt.Println(err)
+}()
+
+
+func doinput(f func(int, int) int, a, b int) int {
+	return f(a, b)
+}
+//匿名函数作为实参
+doinput( func(x, y int) int {
+			return x + y
+			},	 1, 2)
+```
+
+
+
+## defer
+
+defer 关键字，可以注册多个延迟调用，这些调用以先进后出( FILO )的顺序在函数返回前被执行。defer 常用于保
+证一些资源最终一定能够得到回收和释放。
+
+- defer 后面必须是函数或方法的调用
+- defer 函数的实参在注册时通过值拷贝传递进去。后续语句并不会影响defer中实参的值。
+- 主动调用os.Exit( int） 退出进程时， defer 将不再被执行（即使defer 已经提前注册〉。
+- defer 语句的位置不当，有可能导致panic ， 一般def1巳r 语句放在错误检查语句之后。
+- defer 会推迟资源的释放， defer 尽量不要放到循环语句里面。
+- 大函数内部的defer 语句单独拆分成一个小函数是一种很好的实践方式。
+
+```go
+func CopyFile (dst , src string ) (w int64 , err error) {
+	src, err := os.Open (src )
+	if err != nil {
+		return
+    }
+	defer src.Close()
+
+    dst, err := os.Create(dst)
+	if err != nil {
+		return
+    }
+	defer dst.Close ()
+    
+	w, err ＝io.Copy(dst, src)
+    
+	return
+}
+```
+
+
+
+## 闭包
+
+闭包是由函数及其相关引用环境组合而成的实体，一般通过在匿名函数中引用外部函数的局部变量或包全局变量构成。
+				闭包＝函数＋引用环境
+
+闭包最初的目的是减少全局变量，在函数调用的过程中隐式地传递共享变量，有其有用的一面；但是这种隐秘的共享变量的方式带来的坏处是不够直接，不够清晰，除非是非常有价值的地方， 一般不建议使用闭包。
+
+
+
+## panic 和recover
+
+
+
+
+
+
+---
+
 # 包
 
 所有 Go 语言的程序都会组织成若干组文件，每组文件被称为一个包。 Go 语言的每个代码文件都属于一个包。
@@ -70,7 +519,7 @@ import (
 
 在Go 语言里，数组是一个长度固定的数据类型，用于存储一段具有相同的类型的元素的连续块。数组存储的类型可以是内置类型，如整型或者字符串，也可以是某种结构类型。
 
-1. 声明和初始化
+### 声明和初始化
 
 ```go
 代码清单 声明一个数组，并设置为零值
@@ -90,7 +539,7 @@ array := [...]int{10, 20, 30, 40, 50}
 
 **<u>一旦声明，数组里存储的数据类型和数组长度就都不能改变了。</u>**
 
-2. 使用数组
+### 使用数组
 
 ```go
 代码清单 访问数组元素
@@ -113,7 +562,7 @@ array1 = array2
 
 数组变量的类型包括数组长度和每个元素的类型。**只有这两部分都相同的数组，才是类型相同的数组，才能互相赋值**。
 
-3. 多维数组
+### 多维数组
 
 ```go
 代码清单  声明二维数组
@@ -138,7 +587,7 @@ var array3 [2]int = array1[1]
 var value int = array1[1][0]
 ```
 
-4. 在函数间传递数组
+### 在函数间传递数组
 
 **在函数之间传递变量时，总是以值的方式传递的。** 如果这个变量是一个数组，意味着整个数组，不管有多长，都会完整复制，并传递给函数。
 
@@ -150,13 +599,13 @@ var value int = array1[1][0]
 
 切片是一种数据结构，这种数据结构便于使用和管理数据集合。切片是围绕动态数组的概念构建的，可以按需自动增长和缩小。切片的动态增长是通过内置函数append 来实现的。
 
-1. 内部实现
+### 内部实现
 
 切片是一个很小的对象，对底层数组进行了抽象，并提供相关的操作方法。切片有3 个字段的数据结构，这些数据结构包含Go 语言需要操作底层数组的元数据。
 
-![image-20210913174049660](https://user-images.githubusercontent.com/81728370/133210965-47f7e36a-cc4e-45c9-8e07-1f7dab36aaf6.png)
+![image-20210913174049660](pic/slice-1.png)
 
-2. 创建和初始化
+### 创建和初始化
 
 ```go
 代码清单  使用长度声明一个字符串切片
@@ -211,128 +660,366 @@ slice := make([]int, 0)
 slice := []int{}
 ```
 
-![image-20210913175524760](https://user-images.githubusercontent.com/81728370/133211011-1f45506d-27f5-463d-8584-4494561d5763.png)
+![image-20210913175524760](pic/slice-2.png)
 
 - **nil切片和空切片指向的地址不一样。nil空切片引用数组指针地址为0（无指向任何实际地址）**
 - **空切片的引用数组指针地址是有的，且所有的空切片引用的为固定的同一个值**
 
 
 
-3. 使用切片
+### 使用切片
 
-   - 赋值和切片
+- 赋值和切片
 
-     ```go
-     代码清单  使用切片字面量来声明切片
-     // 创建一个整型切片.其容量和长度都是5 个元素
-     slice := []int{10, 20, 30, 40, 50}
-     // 改变索引为1 的元素的值
-     slice[1] = 25
-     
-     // 使用切片创建切片
-     // 创建一个新切片. 其长度为2 个元素，容量为4 个元素
-     newSlice := slice[1:3]
-     ```
-     
-   ![image-20210913180134755](https://user-images.githubusercontent.com/81728370/133211074-ac247c25-3051-4119-a086-4326259a9d07.png)
+  ```go
+  代码清单  使用切片字面量来声明切片
+  // 创建一个整型切片.其容量和长度都是5 个元素
+  slice := []int{10, 20, 30, 40, 50}
+  // 改变索引为1 的元素的值
+  slice[1] = 25
+  
+  // 使用切片创建切片
+  // 创建一个新切片. 其长度为2 个元素，容量为4 个元素
+  newSlice := slice[1:3]
+  ```
+  
 
-   现在两个切片共享同一个底层数组。如果一个切片修改了该底层数组的共享部分，另一个切片也能感知到。
+![image-20210913180134755](pic/slice-3.png)
 
+现在两个切片共享同一个底层数组。如果一个切片修改了该底层数组的共享部分，另一个切片也能感知到。
+
+
+
+- 切片增长
+
+  ```go
+  代码清单 使用append 向切片增加元素
    
+  // 使用原有的容量来分配一个新元素。将新元素赋值为60
+  newSlice = append(newSlice, 60)
+  
+  ```
 
-   - 切片增长
-
-     ```go
-     代码清单 使用append 向切片增加元素
-      
-     // 使用原有的容量来分配一个新元素。将新元素赋值为60
-     newSlice = append(newSlice, 60)
-     
-     ```
-
-   ![image-20210913180634247](https://user-images.githubusercontent.com/81728370/133211129-247ef426-a4f4-4a0a-aa33-df767ae82bc2.png)
-
-   
-
-   **如果切片的底层数组没有足够的可用容量，append 函数会创建一个新的底层数组，将被引用的现有的值复制到新数组里，再追加新的值。**
-
-   
-
-   - 创建切片时的3 个索引
-
-   在创建切片时，还可以使用之前我们没有提及的第三个索引选项。第三个索引可以用来控制新切片的容量。其目的并不是要增加容量，而是要**限制容量**。
-
-   ```go
-   代码清单  使用切片字面量声明一个字符串切片
-   // 创建字符串切片。其长度和容量都是5 个元素
-   source := []string{"Apple", "Orange", "Plum", "Banana", "Grape"}
-   
-   // 将第三个元素切片，并限制容量. 其长度为1 个元素，容量为2 个元素
-   slice := source[2:3:4]
-   ```
-   
-   ![image-20210913181613996](https://user-images.githubusercontent.com/81728370/133211166-0755b029-b2a1-4d54-a905-34e1389e7a06.png)
-
-   **如果试图设置的容量比可用的容量还大，就会得到一个语言运行时错误。**
-
-   在创建切片时设置切片的容量和长度一样，就可以强制让新切片的第一个append 操作创建新的底层数组，与原有的底层数组分离。新切片与原有的底层数组分离后，可以安全地进行后续修改，而不用担心会不小心修改了其他切片里的数据。
-
-   **内置函数append** 也是一个**可变参数的函数**。这意味着可以在一次调用传递多个追加的值。如果使用**...运算符**，可以将一个切片的所有元素追加到另一个切片里。
-
-   ```go
-   // 创建两个切片，并分别用两个整数进行初始化
-   s1 := []int{1, 2}
-   s2 := []int{3, 4}
-   
-   // 将两个切片追加在一起，并显示结果
-   fmt.Printf("%v\n", append(s1, s2...))
-   Output:
-   [1 2 3 4]
-   ```
-
-   
-
-   - 迭代切片
-
-     Go 语言有个特殊的关键字range，它可以配合关键字for 来迭代切片里的元素.
-
-   ```go
-     代码清单  使用for range 迭代切片
-     // 创建一个整型切片.其长度和容量都是4 个元素
-     slice := []int{10, 20, 30, 40}
-     
-     // 迭代每一个元素，并显示其值
-     for index, value := range slice {
-     	fmt.Printf("Index: %d Value: %d\n", index, value)
-     }
-     Output:
-     Index: 0 Value: 10
-     Index: 1 Value: 20
-     Index: 2 Value: 30
-     Index: 3 Value: 40
-   ```
-
-   **需要强调的是，range 创建了每个元素的副本，而不是直接返回对该元素的引用。如果使用该值变量的地址作为指向每个元素的指针，就会造成错误。** 因为迭代返回的变量是一个迭代过程中根据切片依次赋值的新变量，所以value 的地址总是相同的。要想获取每个元素的地址，可以使用切片变量和索引值。
-   
-   ```go
-   代码清单 使用传统的for 循环对切片进行迭代
-   // 创建一个整型切片. 其长度和容量都是4 个元素
-   slice := []int{10, 20, 30, 40}
-   
-   // 从第三个元素开始迭代每个元素
-   for index := 2; index < len(slice); index++ {
-   	fmt.Printf("Index: %d Value: %d\n", index, slice[index])
-   }
-   Output:
-   Index: 2 Value: 30
-   Index: 3 Value: 40
-   ```
-   
-   有两个特殊的**内置函数len 和cap**，可以用于处理数组、切片和通道。对于切片，函数len返回切片的长度，函数cap 返回切片的容量。
+![image-20210913180634247](pic/slice-4.png)
 
 
 
-4. 多维切片
+**如果切片的底层数组没有足够的可用容量，append 函数会创建一个新的底层数组，将被引用的现有的值复制到新数组里，再追加新的值。**
+
+
+
+- 创建切片时的3 个索引
+
+在创建切片时，还可以使用之前我们没有提及的第三个索引选项。第三个索引可以用来控制新切片的容量。其目的并不是要增加容量，而是要**限制容量**。
+
+```go
+代码清单  使用切片字面量声明一个字符串切片
+// 创建字符串切片。其长度和容量都是5 个元素
+source := []string{"Apple", "Orange", "Plum", "Banana", "Grape"}
+
+// 将第三个元素切片，并限制容量. 其长度为1 个元素，容量为2 个元素
+slice := source[2:3:4]
+```
+
+![image-20210913181613996](pic/slice-5.png)
+
+**如果试图设置的容量比可用的容量还大，就会得到一个语言运行时错误。**
+
+在创建切片时设置切片的容量和长度一样，就可以强制让新切片的第一个append 操作创建新的底层数组，与原有的底层数组分离。新切片与原有的底层数组分离后，可以安全地进行后续修改，而不用担心会不小心修改了其他切片里的数据。
+
+**内置函数append** 也是一个**可变参数的函数**。这意味着可以在一次调用传递多个追加的值。如果使用**...运算符**，可以将一个切片的所有元素追加到另一个切片里。
+
+```go
+// 创建两个切片，并分别用两个整数进行初始化
+s1 := []int{1, 2}
+s2 := []int{3, 4}
+
+// 将两个切片追加在一起，并显示结果
+fmt.Printf("%v\n", append(s1, s2...))
+Output:
+[1 2 3 4]
+```
+
+
+
+- 迭代切片
+
+  Go 语言有个特殊的关键字range，它可以配合关键字for 来迭代切片里的元素.
+
+```go
+  代码清单  使用for range 迭代切片
+  // 创建一个整型切片.其长度和容量都是4 个元素
+  slice := []int{10, 20, 30, 40}
+  
+  // 迭代每一个元素，并显示其值
+  for index, value := range slice {
+  	fmt.Printf("Index: %d Value: %d\n", index, value)
+  }
+  Output:
+  Index: 0 Value: 10
+  Index: 1 Value: 20
+  Index: 2 Value: 30
+  Index: 3 Value: 40
+```
+
+**需要强调的是，range 创建了每个元素的副本，而不是直接返回对该元素的引用。如果使用该值变量的地址作为指向每个元素的指针，就会造成错误。** 因为迭代返回的变量是一个迭代过程中根据切片依次赋值的新变量，所以value 的地址总是相同的。要想获取每个元素的地址，可以使用切片变量和索引值。
+
+```go
+代码清单 使用传统的for 循环对切片进行迭代
+// 创建一个整型切片. 其长度和容量都是4 个元素
+slice := []int{10, 20, 30, 40}
+
+// 从第三个元素开始迭代每个元素
+for index := 2; index < len(slice); index++ {
+	fmt.Printf("Index: %d Value: %d\n", index, slice[index])
+}
+Output:
+Index: 2 Value: 30
+Index: 3 Value: 40
+```
+
+有两个特殊的**内置函数len 和cap**，可以用于处理数组、切片和通道。对于切片，函数len返回切片的长度，函数cap 返回切片的容量。
+
+
+
+### 多维切片
+
+可以组合多个切片形成多维切片。
+
+```go
+// 创建一个整型切片的切片
+slice := [][]int{{10}, {100, 200}}
+
+// 为第一个切片追加值为20 的元素
+slice[0] = append(slice[0], 20)
+```
+
+
+
+### 在函数间传递切片
+
+在函数间传递切片是以值的方式传递切片。由于切片的尺寸很小，在函数间复制和传递切片成本也很低。与切片关联的数据包含在底层数组里，不属于切片本身，所以将切片复制到任意函数的时候，对底层数组大小都不会有影响。
+
+
+
+## 映射map
+
+映射是一个存储键值对的无序集合,可以使用类似处理数组和切片的方式迭代映射中的元素,但没有办法预测键值对被返回的顺序。
+
+### 创建和初始化
+
+```go
+代码清单 使用make 声明映射
+// 创建一个映射，键的类型是string，值的类型是int
+dict := make(map[string]int)
+
+// 创建一个映射，键和值的类型都是string, 使用两个键值对初始化映射
+dict := map[string]string{"Red": "#da1337", "Orange": "#e95a22"}
+```
+
+
+
+### 使用映射
+
+```go
+代码清单   为映射赋值
+// 创建一个空映射，用来存储颜色以及颜色对应的十六进制代码
+colors := map[string]string{}
+// 将Red 的代码加入到映射
+colors["Red"] = "#da1337"
+```
+可以通过声明一个未初始化的映射来创建一个值为nil 的映射（称为nil 映射）。**nil 映射不能用于存储键值对。**
+
+测试映射里是否存在某个键是映射的一个重要操作。从映射取值时有两个选择。第一个选择是，可以同时获得值，以及一个表示这个键是否存在的标志; 另一个选择是，只返回键对应的值，然后通过判断这个值是不是零值来确定键是否存在。
+
+在 Go 语言里，**通过键来索引映射时，即便这个键不存在也总会返回一个值**。在这种情况下，返回的是该值对应的类型的零值。
+
+```go
+代码清单  从映射获取值并判断键是否存在
+// 获取键Blue 对应的值
+value, exists := colors["Blue"]
+// 这个键存在吗？
+if exists {
+	fmt.Println(value)
+}
+
+代码清单  从映射获取值，并通过该值判断键是否存在
+// 获取键Blue 对应的值
+value := colors["Blue"]
+// 这个键存在吗？
+if value != "" {
+	fmt.Println(value)
+}
+```
+迭代映射里的所有值和迭代数组或切片一样，使用关键字range，但对映射来说，range 返回的不是索引和值，而是键值对。
+```go
+代码清单  使用range 迭代映射
+// 创建一个映射，存储颜色以及颜色对应的十六进制代码
+colors := map[string]string{
+	"AliceBlue": "#f0f8ff",
+	"Coral": "#ff7F50",
+	"DarkGray": "#a9a9a9",
+	"ForestGreen": "#228b22",
+}
+// 显示映射里的所有颜色
+for key, value := range colors {
+	fmt.Printf("Key: %s Value: %s\n", key, value)
+}
+```
+如果想把一个键值对从映射里删除，就使用内置的delete 函数，如代码清单4-53 所示。
+```go
+代码清单  从映射中删除一项
+// 删除键为Coral 的键值对
+delete(colors, "Coral")
+
+// 显示映射里的所有颜色
+for key, value := range colors {
+	fmt.Printf("Key: %s Value: %s\n", key, value)
+}	//这次在迭代映射时，颜色Coral 不会显示在屏幕上。
+```
+
+
+
+### 在函数间传递映射
+
+在函数间传递映射并不会制造出该映射的一个副本。实际上，当传递映射给一个函数，并对这个映射做了修改时，所有对这个映射的引用都会察觉到这个修改。
+
+---
+
+# 类型系统
+
+go语言的类型系包括**命名类型**和**未命名类型**。
+
+- 命名类型
+  通过标识符来表示的类型称为命名类型。Go 语言的基本类型中有20 个预声明简单类型都是命名类型， 还有一种命名类型一一**用户自定义类型**。
+- 未命名类型（ Unamed Type)
+  一个类型由预声明类型、关键字和操作符组合而成，这个类型称为未命名类型。未命名类型又称为类型字面量。**复合类型**：数组、切片、map、通道、指针、函数字面量(function)、结构(struct) 和 接口都属于未命名类型。
+
+
+
+## 用户定义的类型
+
+声明用户定义的类型有两种方法。
+
+1. 使用关键字struct
+
+```go
+代码清单  声明一个结构类型
+// user 在程序里定义一个用户类型
+type user struct {
+	name string
+	email string
+	privileged bool
+}
+
+// 声明user 类型的变量. 结构里每个字段都会用零值初始化
+var bill user
+p:= new(user)		// 不常用
+
+// 声明user 类型的变量，并初始化所有字段
+lisa := user{
+	name: "Lisa",
+	email: "lisa@email.com",
+	privileged: true,
+}
+
+// admin 需要一个user 类型作为管理者，并附加权限
+type admin struct {
+	person user
+	level string
+}
+
+// 声明admin 类型的变量
+fred := admin{
+	person: user{
+		name: "Lisa",
+		email: "lisa@email.com",
+		privileged: true,
+	},
+	level: "super",
+}
+
+```
+
+结构的字段可以是任意的类型，基本类型、接口类型、指针类型、函数类型都可以作为struct的字段。**结构支持内嵌自身的指针**，这也是实现树形和链表等复杂数据结构的基础。
+
+
+
+2. 基于一个已有的类型，将其作为新类型的类型说明。
+
+```go
+代码清单 基于int64 声明一个新类型
+type Duration int64
+```
+
+虽然int64 是基础类型，Go 并不认为Duration 和int64 是同一种类型。这两个类型是完全不同的有区别的类型。
+
+
+
+## 方法
+
+方法能给用户定义的类型添加新的行为。方法 可以看作特殊类型的函数， 其显式地在关键字**func** 和方法名之间增加了一个参数。这个参数是对象实例或指针，称为**方法的接收者(Reciever)** 。如果一个函数有接收者，这个函数就被称为方法。
+
+```go
+// user 在程序里定义一个用户类型
+type user struct {
+	name string
+	email string
+}
+
+// notify 使用值接收者实现了一个方法
+func (u user) notify() {
+	fmt.Printf("Sending User Email To %s<%s>\n", u.name, u.email)
+}
+
+// changeEmail 使用指针接收者实现了一个方法
+func (u *user) changeEmail(email string) {
+	u.email = email
+}
+
+bill := user{"Bill", "bill@email.com"}
+lisa := &user{"Lisa", "lisa@email.com"}
+// 一般调用
+bill.notify()
+lisa.notify()
+
+// method value 调用
+f := bill.changeEmail
+f("bill@newdomain.com") // 等价 bill.changeEmail("bill@newdomain.com")
+
+// method expression
+bill.notify(bill)
+(user).notify(bill)
+
+(*user).changeEmail("bill@newdomain.com")
+f1 := (*user).changeEmail 
+f1(&bill, "bill@newdomain.com")
+f1(lisa, "bill@newdomain.com")
+```
+
+Go 语言里有两种类型的接收者：**值接收者**和**指针接收者**。
+
+如果使用**值接收者**声明方法，调用时会使用这个值的一个副本来执行。当调用使用**指针接收者**声明的方法时，这个方法会共享调用方法时接收者所指向的值。
+
+**可以使用指针来调用使用值接收者声明的方法, 可以使用一个值来调用使用指针接收者声明的方法。** 
+
+- 可以为命名类型增加方法（除了接口），非命名类型不能自定义方法。
+- 为类型增加方法有一个限制，就是方法的定义必须和类型的定义在同一个包中。
+- 方法的命名空间的可见性和变量一样，大写开头的方法可以在包外被访问，否则只能在包内可见。
+
+
+
+## 类型的本质
+
+
+
+## 接口
+
+
+
+## 嵌入类型
+
+
 
 
 
@@ -356,3 +1043,6 @@ slice := []int{}
 
 interface 关键字声明了一个接口，这个接口声明了结构
 类型或者具名类型需要实现的行为。一个接口的行为最终由在这个接口类型中声明的方法决定。
+
+
+
