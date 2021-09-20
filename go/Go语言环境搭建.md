@@ -21,9 +21,9 @@ Go语言的官方下载地址是 https://golang.org/dl/ 可以打开选择版本
 # Linux下安装
 
 以树莓派3B+ 为例， CPU为arm， 相应的go语言开发包为 `go1.17.linux-armv6l.tar.gz`, 安装目录是 /usr/local/go
-```
-~$curl https://dl.google.com/go/go1.17.linux-arm6l.tar.gz -o go1.17.linux-arm6l.tar.gz
-~$sudo tar -C /usr/local -xzf go1.17.linux-arm64.tar.gz
+```sh
+~$ wget https://golang.google.cn/dl/go1.17.1.linux-armv6l.tar.gz
+~$ sudo tar -C /usr/local -xzf go1.17.1.linux-armv6l.tar.gz
 ```
 
 如果是自己用软件解压的，可以拷贝到`/usr/local/go`下，但是要保证go文件夹下是bin、src、doc等目录
@@ -33,8 +33,8 @@ Go语言的官方下载地址是 https://golang.org/dl/ 可以打开选择版本
 Linux下有两个文件可以配置，其中`/etc/profile`是针对所有用户都有效的； `$HOME/.profile`是针对当前用户有效的，可以根据自己的情况选择。
 
 针对所有用户的需要重启电脑才可以生效；针对当前用户的，在终端里使用source命令加载这个 `$HOME/.profile`即可生效。
-```
-~$source ~/.profile
+```sh
+~$ source ~/.profile
 ```
 
 使用文本编辑器比如VIM编辑他们中的任意一个文件，在文件的末尾添加如下配置保存即可：
@@ -53,12 +53,11 @@ export PATH=$PATH:$GOROOT/bin
 go version go1.17 linux/arm
 
 ```
-这说明我们已经安装go成功了
+这说明我们已经安装go成功了。
 
 # GOPATH目录
 
-自从Golang采用Module的方式管理项目后，GOPATH目录已经不是那么重要了，目前主要用来存放依赖的Module库，生成的可执行文件等。GOPATH环境变量的配置参考上面的安装Go，配置到`/etc/profile`或`$HOME/.profile`
-里。
+自从Golang采用Module的方式管理项目后，GOPATH目录已经不是那么重要了，目前主要用来存放依赖的Module库，生成的可执行文件等。GOPATH环境变量的配置参考上面的安装Go，配置到`/etc/profile`或`$HOME/.profile`里。
 
 这个目录可以根据自己的设置指定，比如$HOME/go下。该目录下有3个子目录，他们分别是：
 ```
