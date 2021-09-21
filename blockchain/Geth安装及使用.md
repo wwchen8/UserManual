@@ -201,7 +201,7 @@ geth --datadir data --dev  --allow-insecure-unlock --http --http.addr 0.0.0.0 --
 
 dev模式下，networkid为: 1337
 
-![image-20210921145730117](E:\Workspace\UserManual\blockchain\pic\image-20210921145730117.png)
+![image-20210921145730117](pic/image-20210921145730117.png)
 
 
 
