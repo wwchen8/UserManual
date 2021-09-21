@@ -48,6 +48,7 @@ geth是用go语言写的，编译geth源码需要go语言和C语言编译器，�
 
 要构建 Geth ，切换到下载源代码的目录并使用 make 命令：
 ```
+$ go env -w GOPROXY=https://goproxy.cn
 $ cd go-ethereum 
 $ make geth
 ```
@@ -89,7 +90,7 @@ $ geth --testnet --datadir . --syncmode fast
  也会需要几个小时的时间。
 
     --testnet     Ropsten网络:预配置的POW(proof-of-work)测试网络
-  
+      
     --rinkeby     Rinkeby网络: 预配置的POA(proof-of-authority)测试网络
 
 ---
@@ -98,6 +99,15 @@ $ geth --testnet --datadir . --syncmode fast
 因为公共网络的区块数量太多，同步耗时太长，我们为了方便快速了解 Geth ，可以试着用它来搭一个只属于自己的私链。
 
 ## 准备创世区块描述文件genesis.json
+
+```sh
+# 在 Home 目录 创建 私有链目录
+$ mkdir devchain
+$ cd devchain
+$ vi genesis.json
+```
+
+
 
 genesis.json内容如下:
 
@@ -109,7 +119,7 @@ genesis.json内容如下:
         "eip150Block": 0,
         "eip155Block": 0,
         "eip158Block": 0,
-        "ByzantiumBlock": 0,
+        "byzantiumBlock": 0,
         "constantinopleBlock": 0,
         "petersburgBlock": 0
     },
@@ -147,31 +157,33 @@ coinbase              //160bits,指明挖矿奖励节点是哪一个
 ## 初始化创世纪区块
 
 要创建一条以它作为创世块的区块链，执行以下命令：
+```sh
+geth --datadir data init genesis.json 
 ```
-geth --datadir /path_private_chain/data init genesis.json 
-```
-![20180516163107607](https://user-images.githubusercontent.com/81728370/132983279-2b3d3b74-ed47-4d09-9d71-6bcb2795b807.png)
+![image-20210921100602526](E:\Workspace\UserManual\blockchain\pic\image-20210921100602526.png)
 
-此时会在`/path_private_chain/`目录下生成 `data` 目录，data目录又包含geth和keystore目录。geth目录存储区块数据，keystore目录则保存账户信息。
+此时会在`/devchain/`目录下生成 `data` 目录，data目录又包含geth和keystore目录。geth目录存储区块数据，keystore目录则保存账户信息。
 
-![20180516163118555](https://user-images.githubusercontent.com/81728370/132983299-8545687e-eca0-4a92-bc35-fdff4dc520db.png)
+![image-20210921100822249](E:\Workspace\UserManual\blockchain\pic\image-20210921100822249.png)
+
+
 
 ## 启动私有区块链
 
 当前目录下运行 geth ，就会启动这条私链，注意要将 networked 设置为与创世块配置里的chainId 一致。
-```
-geth --datadir /path_private_chain/data --networkid 15  --rpc --rpcaddr 0.0.0.0 --rpcport 8545
+```sh
+geth --datadir data --networkid 15  --allow-insecure-unlock --http --http.addr 0.0.0.0 --http.port 8545
 ```
 
 常用参数：
 * console          启动geth控制台，不加该选项，geth启动之后成为一个后台进程不会自动结束
-* --rpcapi net,eth,web3,personal
-* --rpc                       启用HTTP-RPC服务器
-* --rpcaddr value             HTTP-RPC服务器接口地址(默认值:“localhost”)
-* --rpcport value             HTTP-RPC服务器监听端口(默认值:8545)
+* --http.api        net,eth,web3,personal
+* --http                       启用HTTP-RPC服务器
+* --http.addr value             HTTP-RPC服务器接口地址(默认值:“localhost”)
+* --http.port value             HTTP-RPC服务器监听端口(默认值:8545)
+* **--allow-insecure-unlock**     允许HTTP解锁本地账户。默认禁止了HTTP通道解锁账户
 
-要通过Geth的RPC访问端结点提供这些管理API，需要在启动geth时使用--${interface}api选项，其中${interface}可以是rpc，表示HTTP上的端结点，
-或者是ws，表示WebSocket上的端结点，或者ipc，表示unix套接字或windows命名管道上的端结点。
+要通过Geth的RPC访问端结点提供这些管理API，需要在启动geth时使用--${interface}api选项，其中${interface}可以是rpc，表示HTTP上的端结点，或者是ws，表示WebSocket上的端结点，或者ipc，表示unix套接字或windows命名管道上的端结点。
 
 默认情况下，Geth在IPC端结点上提供所有的API，在HTTP和WebSocket接口上仅提供db、eth、net和web3这几个API。
 
@@ -181,9 +193,17 @@ dev 模式，也叫回归测试模式，主要用来给开发人员提供一个�
 
 在dev模式下，可以轻松的获得以太币，默认开启来的挖矿，方便发起交易，交易也会被快速的打包，节省时间方便验证。
 
+**不需要初始化创世纪区块配置文件**，直接运行下列命令：
+
+```sh
+geth --datadir data --dev  --allow-insecure-unlock --http --http.addr 0.0.0.0 --http.port 8545 --http.corsdomain "https://remix.ethereum.org,http://remix.ethereum.org" 
 ```
-geth --datadir /path_private_chain/data --dev --networkid 15 --rpc --rpcaddr 0.0.0.0 --rpcport 8545
-```
+
+dev模式下，networkid为: 1337
+
+![image-20210921145730117](E:\Workspace\UserManual\blockchain\pic\image-20210921145730117.png)
+
+
 
 ## 连接Geth三种方式
 
@@ -195,7 +215,7 @@ geth attach ethereum/data0/geth.ipc
 ```
 geth --ipcpath ~/.ethereum/geth.ipc attach  
 ```
- 
+
 2. TCP 连接控制台——连接远程控制台
 ```
 geth --exec 'eth.coinbase' attach http://localhost:8545
@@ -224,6 +244,7 @@ Geth客户端console是一个交互式的 JavaScript 执行环境，在这里面
 常用命令有：
 
 **net模块**
+
 ``` javascript
 > net.listening             //查看节点状态 
 > net.peerCount             // 查看节点链接的数量
@@ -257,6 +278,7 @@ Geth客户端console是一个交互式的 JavaScript 执行环境，在这里面
 ```
 
 **挖矿、结束挖矿**
+
 ``` javascript
 > miner.start(1)
 > miner.stop()
