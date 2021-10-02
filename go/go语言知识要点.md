@@ -1204,13 +1204,13 @@ var g ADD = add
 
 
 
-## 接口
+# 接口
 
 接口是一个编程规约，也是一组方法签名的集合。
 
 多态是指代码可以根据类型的具体实现采取不同行为的能力。如果一个类型实现了某个接口，所有使用这个接口的地方，都可以支持这种类型的值。
 
-### 接口实现
+## 接口实现
 
 接口是用来定义行为的类型。这些被定义的行为不由接口直接实现，而是通过方法由用户定义的类型实现。
 
@@ -1254,11 +1254,514 @@ func (u *user) notify() {
 - 接口定义的内部方法声明不需要func 引导。
 - 在接口定义中，只有方法声明没有方法实现。
 
-### 接口方法调用
+## 接口方法调用
 
 接口方法调用和普通的函数调用是有区别的。接口方法调用的最终地址是在运行期决定的，将具体类型变量赋值给接口后，会使用具体类型的方法指针初始化接口变量，当调用接口变量的方法时，实际上是间接地调用实例的方法。
 
 
 
+## 接口运算
 
+编程过程中有时需要确认已经初始化的接口变量指向实例的具体类型是什么，也需要检查运行时的接口类型。
+Go 语言提供两种语法结构来支持这两种需求，分别是类型断言和接口类型查询。
+
+
+
+### 类型断言（ Type Assertion )
+
+接口类型断言的语法形式如下：
+
+```go
+i.(TypeName)
+```
+
+
+i 必须是接口变量，如果是具体类型变量，则编译器会报non-interface type xxx on left, TypeName 可以是接口类型名，也可以是具体类型名。
+
+接口断言的两种语法表现:
+
+```go
+// 直接赋值模式
+o :=  i. (TypeName)
+
+// comma,ok 表达式模式
+if o, ok := i.(TypeName); ok {
+    ...
+}
+
+// 示例如下
+package main
+import "fmt"
+
+type Inter interface {
+    Ping()
+}
+type Anter interface {
+    Inter
+    String()
+}
+
+type St struct {
+	Name string
+}
+
+func (St) Ping () {
+	println ("ping")
+}
+
+func main() {
+	st := &St{"andes"}
+	var i interface{} = st
+    
+	// 判断i 绑定的实例是否实现了接口类型Inter
+    o := i.(Inter)
+    o.Ping()
+
+	// 如下语句会引发panic ，因为 i 没有实现接口Anter
+	// p := i.(Anter)
+	// p.String()
+	
+    // 判断 i 绑定的实例是否就是具体类型St
+    s := i.(*St)
+	fmt.Printf("%s", s.Name)  
+    
+	// 判断i 绑定的实例是否实现了接口类型Inter
+	if o, ok := i.(Inter}; ok {
+        a.Ping() //ping
+    }
+	if p, ok := i.(Anter} ; ok {
+		// i没有实现接口Anter ，所以程序不会执行到这里
+        p.String()
+    }
+	// 判断 i 绑定的实例是否就是具体类型St
+    if s, ok := i. (*St); ok {
+        fmt.Printf ("%s", s.Name) //andes
+    }                    
+}
+```
+
+### 类型查询
+
+接口类型查询的语法格式如下：
+
+```go
+switch v := i.(type) {
+	case typel:
+		xxxx
+	case type2:
+		xxxx
+	default:
+		xxxx
+}
+```
+
+- i 必须是接口类型。如果i 是未初始化接口变量，则 v 的值是nil 。
+- case 字句后面可以跟非接口类型名，也可以跟接口类型名，匹配是按照case 子句的顺序进行的。
+
+- fallthrough 语句不能在Type Switch i吾句中使用。
+
+
+
+## 空接口
+
+没有任何方法的接口， 我们称之为空接口。空接口表示为 interface {}。系统中任何类型都符合空接口的要求，空接口有点类似于Java 语言中的Object。不同之处在于， Go 中的基本类型int、float 和string 也符合空接口。
+
+如果一个函数需要接收任意类型的参数， 则参数类型可以使用空接口类型。
+
+空接口有两个字段， 一个是实例类型， 另一个是指向绑定实例的指针，只有两个都为nil 时，空接口才为nil.
+
+
+
+# 并发
+
+Go 语言的运行时会在逻辑处理器上调度goroutine来运行。每个逻辑处理器都分别绑定到单个操作系统线程。
+
+这些逻辑处理器会用于执行所有被创建的goroutine。即便只有一个逻辑处理器，Go也可以以神奇的效率和性能，并发调度无数个goroutine。
+
+![image-20210924172921462](pic/image-20210924172921462.png)
+
+
+
+如果希望让goroutine 并行，必须使用多于一个逻辑处理器。当有多个逻辑处理器时，调度器会将goroutine 平等分配到每个逻辑处理器上。这会让goroutine 在不同的线程上运行。不过要想真的实现并行的效果，用户需要让自己的程序运行在有多个物理处理器的机器上。否则，哪怕Go 语言运行时使用多个线程，goroutine 依然会在同一个物理处理器上并发运行，达不到并行的效果。
+
+
+
+![image-20210924173249052](pic/image-20210924173249052.png)
+
+
+
+
+
+## goroutine
+
+Go语言通过go 关键宇来启动一个goroutine 。注意： go 关键宇后面必须跟一个函数，不能是语句或其他东西，函数的返回值被忽略。
+
+通过go＋匿名函数形式  或 ＋有名函数形式 启动goroutine。
+
+goroutine 有如下特性：
+
+- go 的执行是非阻塞的，不会等待。
+- go 后面的函数的返回值会被忽略。
+- 调度器不能保证多个goroutine 的执行次序。
+-  没有父子goroutine 的概念，所有的goroutine 是平等地被调度和执行的。
+- Go程序在执行时会单独为main 函数创建一个goroutine, 遇到其他go关键字时再去创建其他 goroutine。
+- Go 没有暴露goroutine id 给用户，所以不能在一个goroutine 里面显式地操作另一个goroutine ， 不过runtim e 包提供了一些函数访问和设置goroutine 的相关信息。
+
+1. func GOMAXPROCS(n int) int 
+
+   用来设置或查询可以井发执行的goroutine 数目。参数为0时时查询当前的GOMAXPROCS 值。大于0表示设置GOMAXPROCS 值。
+
+2. func Goexit()
+
+   是结束当前goroutine的运行，结束前会调用已经注册的defer, 不会产生panic。defer里面的recover()都返回nil。
+
+3. func Gosched()
+
+   放弃当前调度执行机会，将当前goroutine放到队列中等待下次调度。
+
+```go
+// 这个示例程序展示如何创建goroutine 以及 goroutine 调度器的行为
+package main
+
+import (
+	"fmt"
+	"runtime"
+	"sync"
+)
+
+// main 是所有Go 程序的入口
+func main() {
+	// 分配 2 个逻辑处理器给调度器使用
+	runtime.GOMAXPROCS(2)
+
+	// wg 用来等待程序完成.   计数加 2，表示要等待两个goroutine
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	fmt.Println("Start Goroutines")
+
+    // 声明一个匿名函数，并创建一个goroutine
+	go func() {
+		// 在函数退出时调用Done 来通知main 函数工作已经完成
+		defer wg.Done()
+
+		// 显示字母表3 次
+		for count := 0; count < 3; count++ {
+			for char := 'a'; char < 'a'+26; char++ {
+				fmt.Printf("%c ", char)
+			}
+		}
+	}()
+
+	// 声明一个匿名函数，并创建一个goroutine
+	go func() {
+		// 在函数退出时调用Done 来通知main 函数工作已经完成
+		defer wg.Done()
+
+		// 显示字母表3 次
+		for count := 0; count < 3; count++ {
+			for char := 'A'; char < 'A'+26; char++ {
+				fmt.Printf("%c ", char)
+			}
+		}
+	}()
+
+	// 等待 goroutine 结束
+	fmt.Println("Waiting To Finish")
+	wg.Wait()
+	fmt.Println("\nTerminating Program")
+}
+```
+
+
+
+## 同步机制
+
+Go 语言提供了传统的同步goroutine 的机制，就是对共享资源加锁。
+
+### 原子函数
+
+原子函数能够以很底层的加锁机制来同步访问整型变量和指针。
+
+atomic.AddInt64函数会同步整型值的加法，方法是强制同一时刻只能有一个goroutine 运行并完成这个加法操作。
+
+另外两个有用的原子函数是LoadInt64 和StoreInt64。这两个函数提供了一种安全地读和写一个整型值的方式。
+
+
+
+```go
+import (
+	"sync/atomic"
+)
+
+counter int64
+atomic.AddInt64(&counter, 1)
+
+shutdown int64
+
+atomic.StoreInt64(&shutdown, 1)
+
+if atomic.LoadInt64(&shutdown) == 1 {
+	...
+}
+```
+
+
+
+### 互斥锁
+
+另一种同步访问共享资源的方式是使用互斥锁（mutex）。互斥锁用于在代码上创建一个临界区，保证同一时间只有一个goroutine 可以执行这个临界区代码。
+
+```go
+package main
+import (
+	"fmt"
+	"runtime"
+	"sync"
+)
+
+var (
+	// counter 是所有goroutine 都要增加其值的变量
+	counter int
+
+	// wg 用来等待程序结束
+	wg sync.WaitGroup
+
+	// mutex 用来定义一段代码临界区
+	mutex sync.Mutex
+)
+
+// main 是所有Go 程序的入口
+func main() {
+	// 计数加 2，表示要等待两个goroutine
+	wg.Add(2)
+
+	// 创建两个goroutine
+	go incCounter(1)
+	go incCounter(2)
+
+	// 等待 goroutine 结束
+	wg.Wait()
+	fmt.Printf("Final Counter: %d\\n", counter)
+}
+
+func incCounter(id int) {
+	// 在函数退出时调用Done 来通知main 函数工作已经完成
+	defer wg.Done()
+
+	for count := 0; count < 2; count++ {
+		// 同一时刻只允许一个goroutine 进入这个临界区
+		mutex.Lock()
+		{
+			// 捕获 counter 的值
+			value := counter
+
+			// 当前 goroutine 从线程退出，并放回到队列， 锁还未释放。
+			runtime.Gosched()
+
+			// 增加本地 value 变量的值
+			value++
+
+			// 将该值保存回counter
+			counter = value
+		}
+		
+		// 释放锁，允许其他正在等待的goroutine进入临界区
+        mutex.Unlock()
+    }
+}
+
+// 当goroutine 在临界区内调用 runtime.Gosched() 放弃执行后，其他goroutine无法进入临界区一直处在阻塞中调度器会再次分配这个goroutine 继续运行，并释放锁。
+```
+
+
+
+### WaitGroup 
+
+goroutine 和chan ， 一个用于并发，另一个用于通信。没有缓冲的通道具有同步的功能，除此之外， sync 包也提供了WaitGroup 同步的机制。
+
+```go
+type WaitGroup struct {
+	// contains filtered or unexported fields
+}
+// 添加等待信号
+func (wg *WaitGroup) Add(delta int)
+
+// 释放等待信号
+func (wg *WaitGroup) Done()
+
+// 等待
+func (wg *WaitGroup) Wait()
+```
+
+WaitGroup 用来等待多个goroutine 完成， main goroutine 调用Add 设置需要等待goroutine的数目，每一个goroutine 结束时调用Done(),  Wait()被main 用来等待所有的goroutine 完成。
+
+```go
+package main
+
+import (
+	"net/http"
+	"sync"
+)
+
+var wg sync.WaitGroup
+var urls = []string{
+	"http://www.golang.org/",
+	"http://www.google.com/,
+	"http://www.qq.com/",
+}
+
+func main () {
+    for _, url range urls{
+        wg.Add(1)
+        go func(url string){
+            do task ...
+        }(url)
+    }
+
+	wg.Wait()
+}
+```
+
+
+
+
+
+## chan 通道
+
+通道是goroutine 之间通信和同步的重要组件。可以使用通道，通过发送和接收需要共享的资源，在goroutine 之间做同步。
+
+通道是有类型的，可以简单地把它理解为有类型的管道。声明通道时，需要指定将要被共享的数据的类型。可以通过通道共享
+内置类型、命名类型、结构类型和引用类型的值或者指针。但是 声明的通道并没有初始化,其值是nil。Go 语言提供一个内置函数make 来创建通道。
+
+```go
+// 创建一个无缓冲的整型通道，通道存放元素的类型为datatype
+unbuffered := make(chan int)
+
+// 创建一个有 10 个缓冲的字符串通道，通道存放元素的类型为datatype
+buffered := make(chan string, 10)
+```
+
+通道分为无缓冲的通道和有缓冲的通道，Go 提供内置函数len 和cap，无缓冲的通道的Jen和cap 都是0，有缓冲的通道的len 代表没有被读取的元素数，cap 代表整个通道的容量。无缓冲的通道既可以用于通信，也可以用于两个goroutine 的同步，有缓冲的通道主要用于通信。
+
+```go
+代码清单  向通道发送值
+// 有缓冲的字符串通道
+buffered := make(chan string, 10)
+
+// 通过通道发送一个字符串
+buffered <- "Gopher"
+
+// 从通道接收一个字符串
+value := <-buffered
+```
+
+
+
+goroutine 运行结束后退出，写到缓冲通道中的数据不会消失.
+
+操作不同状态的chan 会引发三种行为。
+
+- panic
+
+1. 向已经**关闭的通道写数据**会导致panic 。
+
+   最佳实践是由写入者关闭通道，能最大程度地避免向已经关闭的通道写数据而导致的panic 。
+
+2. 重复关闭的通道会导致panic 。
+
+   
+
+- 阻塞
+
+1. 向未初始化的通道读写数据都会导致当前goroutine 的永久阻塞。
+
+2. 向缓冲区己满的通道写入数据会导致goroutine 阻塞。
+
+3. 通道中没有数据，读取该通道会导致goroutine 阻塞。
+
+   
+
+- 非阻塞
+
+1. **读取己经关闭的通道不会引发阻塞**，而是立即返回通道元素类型的零值，可以使用comma , ok 语法判断通道是否己经关闭。
+2. 向有缓冲且没有满的通道读／写不会引发阻塞。
+
+
+
+```go
+// 读取数据. ok表示是否成功从通道接收到值，false表示channels已经被关闭并且里面没有值可接收。
+data, ok := <-task
+if !ok {
+	// 通道已空,并被关闭
+	...
+}
+
+// range循环可直接在channel上迭代。使用range循环是上面处理模式的简洁语法，它依次从channel接收数据，
+// 当channel被关闭并且没有值可接收时跳出循环。
+
+for x := range task {
+    
+}
+// 通道已关闭
+```
+
+
+
+单向通道
+
+通道默认是双向的，并不区分发送和接收端。有时候，可限定收发操作的方向来获得严谨的操作逻辑。
+
+通常是使用类型转换来获取单向通道，并分别赋予操作双方。不能使用close关闭单向接收通道，不能在单向通道上做逆向操作，也无法将单向通道重新转换回去。
+
+```go
+c := make(chan int)
+var send chan<- = c
+var recv <-chan = c
+
+go func(){
+	...
+	for x := range recv {
+	  ...
+	}
+}
+
+go func() {
+	for i:0; i<3; i++ {
+		send <- i
+	}
+}
+```
+
+
+
+## select
+
+Go 语言借用多路复用的概念，提供了select 关键字，用于多路监昕多个通道。当监听的通道没有状态是可读或可写的， select 是阻塞的；只要监听的通道中有一个状态是可读或可写的，则select 就不会阻塞，而是进入处理就绪通道的分支流程。如果监听的通道有多个可读或可写的状态， 则select 随机选取一个处理。
+
+```go
+package main
+
+import (
+	"fmt"
+	"time"
+)
+
+func main() {
+	tick := time.Tick(100 * time.Millisecond)
+	boom := time.After(500 * time.Millisecond)
+	for {
+		select {
+			case <-tick:
+				fmt.Println("tick.")
+			case <-boom:
+				fmt.Println("BOOM!")
+				return
+			default:
+				fmt.Println(" .")
+				time.Sleep(50 * time.Millisecond)
+		}
+	}
+}
+```
 

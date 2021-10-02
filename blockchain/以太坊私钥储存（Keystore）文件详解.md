@@ -98,7 +98,9 @@ $ cat ~/.ethereum/keystore/UTC--<created_date_time>--  008aeeda4d805471df9b2a5b0
 
 所以，在这里，你已经有了进行解密以太坊私钥计算所需要的一切...等等。你需要首先取回你的解密密钥。
 
-![6194358474a04064ac96571917923487](https://user-images.githubusercontent.com/81728370/132475553-846e4819-c683-4217-8e7c-b62993a01ffa.png)
+
+
+![image-20210930094558691](pic/image-20210930094558691.png)
 
                                  ciphertex 密文的对称解密
 
@@ -116,7 +118,7 @@ $ cat ~/.ethereum/keystore/UTC--<created_date_time>--  008aeeda4d805471df9b2a5b0
 
 在这里，用 **kdfparams** 参数对 *scrypt* 函数进行调整，反馈到我们的密码中，你就会得到**解密密钥**也就是密钥生成函数的输出。
 
-![41322f690ae040e58781d42cc8a96aef](https://user-images.githubusercontent.com/81728370/132475738-7fee681f-18ad-4629-bc17-0b096905f2d2.png)
+![image-20210930094739805](pic/image-20210930094739805.png)
 
                                  用密码生成密钥
 
@@ -134,7 +136,7 @@ $ cat ~/.ethereum/keystore/UTC--<created_date_time>--  008aeeda4d805471df9b2a5b0
 【注1】这里有点简略了。在和 **mac** 进行比较之前，**解密密钥**（左起第二字节开始的16字节）要和 **ciphertext** 密文连接在一起，并进行哈希散列（用SHA3-256的方法）。 
 更多信息请访问[这里](https://github.com/hashcat/hashcat/issues/1228)。
 
-![7722c8acbd0e43b998030e88ce9eab5d](https://user-images.githubusercontent.com/81728370/132475821-9202bf46-7c1f-4f57-8d1a-599fd8149305.png)
+![image-20210930094844796](pic/image-20210930094844796.png)
 
 
 4. 把所有的都放到一起考虑
@@ -151,7 +153,7 @@ $ cat ~/.ethereum/keystore/UTC--<created_date_time>--  008aeeda4d805471df9b2a5b0
 
 瞧！解密的结果是你的**以太坊私钥**。 你可以在这里看看整个过程：
 
-![29ce9ec7823e44198b8a223cb1414b92](https://user-images.githubusercontent.com/81728370/132475914-c591d16c-6be5-4bf8-ab5a-778814a95a3a.png)
+![image-20210930094929466](pic/image-20210930094929466.png)
 
 
 就像你从图中可以看到的，整个过程可以看做一个黑盒（不过，图中是个灰盒），你的密码是惟一的输入，你的以太坊私钥是惟一的输出。所需的其他信息都可以在你的以太坊账户创建时生成的keystore文件中获得。
