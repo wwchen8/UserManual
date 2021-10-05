@@ -160,11 +160,11 @@ coinbase              //160bits,指明挖矿奖励节点是哪一个
 ```sh
 geth --datadir data init genesis.json 
 ```
-![image-20210921100602526](E:\Workspace\UserManual\blockchain\pic\image-20210921100602526.png)
+![image-20210921100602526](pic/image-20210921100602526.png)
 
 此时会在`/devchain/`目录下生成 `data` 目录，data目录又包含geth和keystore目录。geth目录存储区块数据，keystore目录则保存账户信息。
 
-![image-20210921100822249](E:\Workspace\UserManual\blockchain\pic\image-20210921100822249.png)
+![image-20210921100822249](pic/image-20210921100822249.png)
 
 
 
