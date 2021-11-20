@@ -9,7 +9,7 @@
   * [函数签名和匿名函数](#函数签名和匿名函数)
   * [defer](#defer)
   * [闭包](#闭包)
-  * [panic 和recover](#panic 和recover)
+  * [panic和recover](#panic和recover)
   * [错误处理](#错误处理)
 * [包](#包)
   
@@ -38,7 +38,7 @@
   
   * [goroutine](#goroutine)
   * [同步机制](#同步机制)
-  * [chan 通道](#chan 通道)
+  * [chan通道](#chan通道)
   * [select](#select)
   
   
@@ -480,7 +480,7 @@ func CopyFile (dst , src string ) (w int64 , err error) {
 
 
 
-## panic 和recover
+## panic和recover
 
 这两个内置函数用来处理Go 的运行时错误((runtime errors )。panic 用来主动抛出错误， recover 用来捕获panic 抛出的错误。
 
@@ -1657,7 +1657,7 @@ func main () {
 
 
 
-## chan 通道
+## chan通道
 
 通道是goroutine 之间通信和同步的重要组件。可以使用通道，通过发送和接收需要共享的资源，在goroutine 之间做同步。
 
